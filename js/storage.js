@@ -2,7 +2,7 @@
 let S;
 try{S=JSON.parse(localStorage.getItem('tradex')||localStorage.getItem('slipcase')||'null')}catch(e){}
 S=S||seed();const LEG={Mint:'Near Mint',Excellent:'Lightly Played',Good:'Moderately Played',Played:'Moderately Played'};S.cards.forEach(c=>{if(LEG[c.cond])c.cond=LEG[c.cond]});S.cards.forEach(c=>{if(c.name==='Black Lotus'&&!c.img)Object.assign(c,BL);if(c.name==='Llanowar Elves'&&!c.img)Object.assign(c,LE);if(c.name==='Llanowar Elves'&&!c.flavor&&c.set==='Dominaria')c.flavor=LE.flavor;if(c.name==='Charizard'&&!c.moves)Object.assign(c,CH)});
-const save=()=>{try{localStorage.setItem('tradex',JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem('tradex',JSON.stringify(S))}catch(e){}if(window.TXSync)TXSync.changed()};
 function fixBinders(){const bg=S.bg=S.bg||{},uq=a=>[...new Set(a)];
  S.binders.filter(b=>b!=='Everything').forEach(b=>{const cs=S.cards.filter(c=>c.binders.includes(b)),gs=uq(cs.map(c=>c.game||'Other')),drop=g=>cs.forEach(c=>{if((c.game||'Other')!==g)c.binders=c.binders.filter(x=>x!==b)});
   if(bg[b]){drop(bg[b]);return}

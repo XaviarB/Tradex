@@ -91,7 +91,7 @@ fi.onchange=()=>{const f=fi.files[0];if(!f||!imgKey)return;const k=imgKey,mx=k==
   const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cv.width,cv.height);x.drawImage(im,0,0,cv.width,cv.height);
   S.img=S.img||{};const old=S.img[k];S.img[k]=cv.toDataURL('image/jpeg',.82);
   try{localStorage.setItem('tradex',JSON.stringify(S))}catch(e){if(old)S.img[k]=old;else delete S.img[k];alert('That image is too big to save in this browser. Try a smaller one.');return}
-  render()};im.onerror=()=>alert('Could not read that image.');im.src=r.result};r.readAsDataURL(f)};
+  if(window.TXSync)TXSync.changed();render()};im.onerror=()=>alert('Could not read that image.');im.src=r.result};r.readAsDataURL(f)};
 function ask(t,o={}){return new Promise(res=>{const d=$('#dAsk'),i=$('#aI'),ok=$('#aO'),end=v=>{d.close();res(v)};
  $('#aT').textContent=t;i.hidden=!o.input;i.value=o.def||'';ok.textContent=o.ok||'OK';ok.style.background=ok.style.borderColor=o.danger?'var(--acc2)':'';
  ok.onclick=()=>end(o.input?i.value.trim():true);$('#aC').onclick=()=>end(null);i.onkeydown=e=>{if(e.key==='Enter')ok.click()};d.oncancel=()=>res(null);d.showModal();if(o.input)i.focus()})}

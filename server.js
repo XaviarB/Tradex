@@ -8,6 +8,13 @@ const TYPES = { '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; char
 
 http.createServer((req, res) => {
   if (req.url === '/health') { res.writeHead(200); return res.end('ok'); }
+  // Sign-in settings for the page. The anon key is public by design; row-level security protects the data.
+  if (req.url.split('?')[0].endsWith('/config.js')) {
+    const { SUPABASE_URL: url, SUPABASE_ANON_KEY: anonKey, SUPABASE_PROVIDERS: p } = process.env;
+    const cfg = url && anonKey ? { url, anonKey, providers: (p || '').split(',').map(s => s.trim()).filter(Boolean) } : null;
+    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+    return res.end(cfg ? 'window.TX_SUPABASE=' + JSON.stringify(cfg) + ';' : '');
+  }
   // App modules in css/ and js/. Matched at the end of the path so the page still works when served from any URL.
   const asset = /\/(css|js)\/([\w.-]+\.(?:css|js))$/.exec(req.url.split('?')[0]);
   if (asset) {
