@@ -1,0 +1,19 @@
+/* Tradéx: iOS device preview */
+#iosbtn{position:fixed;left:12px;bottom:12px;z-index:99990;background:#171b1a;color:#e8eeeb;border:1px solid #3a4440;border-radius:20px;padding:8px 14px;font:600 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#iosbtn[aria-pressed=true]{background:#0e6b5c;border-color:#4cc2ab}
+@media(max-width:760px){#iosbtn{display:none}}
+#iosui{position:fixed;inset:0;z-index:99995;background:rgba(10,14,13,.94);display:flex;flex-direction:column;font:13px system-ui,sans-serif;color:#e8eeeb}
+#iosui[hidden]{display:none}
+.io-bar{display:flex;gap:8px;align-items:center;justify-content:center;padding:10px;flex-wrap:wrap}
+.io-bar select,.io-bar button{background:#26302d;color:#fff;border:1px solid #3a4440;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+.io-bar button.on{background:#0e6b5c;border-color:#4cc2ab}
+.io-stage{flex:1;display:grid;place-items:center;overflow:hidden;min-height:0}
+.io-wrap{position:relative}
+.io-dev{position:absolute;top:0;left:0;transform-origin:top left;background:#0b0d0c;border:2px solid #4a5551;box-shadow:0 20px 60px rgba(0,0,0,.6);padding:12px}
+.io-screen{position:relative;overflow:hidden;background:#000}
+.io-screen iframe{border:0;display:block;background:#fff}
+.io-ov{position:absolute;pointer-events:none;color:#fff;mix-blend-mode:difference;font:600 15px -apple-system,system-ui,sans-serif}
+.io-time{left:0;top:0;width:34%;display:flex;justify-content:center;align-items:center}
+.io-bat{right:0;top:0;width:34%;display:flex;justify-content:center;align-items:center;gap:6px}
+.io-isl{left:50%;top:11px;width:120px;height:34px;margin-left:-60px;background:#000;border-radius:20px;mix-blend-mode:normal}
+.io-home{left:50%;bottom:8px;width:134px;height:5px;margin-left:-67px;background:#fff;border-radius:3px}

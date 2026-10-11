@@ -1,0 +1,32 @@
+/* Tradéx: Add/edit card form, including the card database lookup. */
+const LK=`<div class="lk"><div style="display:flex;gap:6px;flex-wrap:wrap"><select id="lg"><option value="magic">Magic</option><option value="pokemon">Pokémon</option><option value="onepiece">One Piece</option></select><input id="lq" placeholder="Search the card database" style="flex:1;min-width:120px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)"><button type="button" id="ls">Look up</button></div><div class="res" id="lr"></div></div>`;
+async function look(){const r=$('#lr'),q=$('#lq').value.trim();if(!q)return;r.textContent='Searching…';
+ try{const gm=$('#lg').value;if(window.TX_SERVER){try{R=await fetch('/api/search?game='+gm+'&q='+encodeURIComponent(q),{headers:{'x-owner':localStorage.getItem('tradex_pw')||''}}).then(x=>x.ok?x.json():Promise.reject());if(Array.isArray(R)&&R.length){r.innerHTML=R.map((c,i)=>`<button type="button" data-i="${i}">${c.img?`<img src="${esc(c.img)}" alt="">`:''}${esc(c.name)} · ${esc(c.set)} · ${esc(c.num)} · ${c.price?money(c.price):'no price'}</button>`).join('');return}}catch(x){}}
+  const sm=await claude.use('sample');if(!sm){r.textContent='No match found. You can still enter cards by hand.';return}
+  R=await sm.json('You are a trading card database. Game: '+({magic:'Magic: The Gathering',pokemon:'Pokemon TCG',onepiece:'One Piece Card Game'}[gm])+'. Search query: "'+q+'". Return ONLY a JSON array (max 8) of real printings that match, each object with keys: name, set, num (collector number like "168/269"), year (string), artist, rarity, type (full type line), cost (mana cost like "2G" for Magic, else omit), text (rules text), game ("'+gm+'"). Use null for anything you are not sure of. Never invent cards or prices.',{modelTier:'quick'});if(!Array.isArray(R))throw 0;R.forEach(c=>{c.game=gm;delete c.price;delete c.img});
+  r.innerHTML=R.length?R.map((c,i)=>`<button type="button" data-i="${i}">${c.img?`<img src="${esc(c.img)}" alt="">`:''}${esc(c.name)} · ${esc(c.set)} · ${esc(c.num)} · ${c.price?money(c.price):'no price'}</button>`).join(''):'No matches. Try a shorter name.'}
+ catch(e){r.textContent='Lookup failed or was declined. You can still enter cards by hand.'}}
+function pick(c){const set=(k,v)=>{const el=$('#f_'+k);if(el&&v!=null)el.value=v};
+ set('name',c.name);set('set',c.set);set('num',c.num);set('year',c.year);set('artist',c.artist);set('game',GN[c.game]);set('price',c.price||'');
+ if(c.rarity){const o=[...$('#f_rarity').options].find(o=>o.value.toLowerCase()===c.rarity.toLowerCase());if(o)$('#f_rarity').value=o.value}
+ pend={src:{game:c.game,id:c.id},img:c.img,sources:c.sources,type:c.type,cost:c.cost,text:c.text,moves:c.moves};$('#lr').textContent='Filled in from the database. Check the details and save.'}
+const FIELDS=[['name','Card name','text','w'],['set','Set','text'],['num','Card number','text'],['year','Release date','date'],['artist','Artist','text'],['game','Game / category','text'],['rarity','Rarity','sel',RAR],['cond','Condition','sel',CON],['grader','Graded slab: company','gsel'],['grade','Slab grade (e.g. 10, 9.5)','text'],['finish','Finish / pattern','fin'],['qty','Copies owned','number'],['paid','Acquired for ($) – paid or trade value','number'],['acquired','How acquired (bought, traded for…)','text','w'],['price','Current value ($)','number'],['listed','Seller’s price ($)','number'],['collected','Date collected','date'],['binders','Binders (comma separated)','text','w'],['notes','Notes','text','w']];
+function edit(id){editId=id;const c=id?S.cards.find(x=>x.id===id):{game:(isB(cur)&&S.bg&&S.bg[cur])||'Pokémon',rarity:'Common',cond:'Near Mint',qty:1,paid:0,hist:[],collected:new Date().toISOString().slice(0,10),binders:isB(cur)?[cur]:[]};
+ $('#eh').textContent=id?'Edit card':'Add card';pend={src:c.src,img:c.img,sources:c.sources,type:c.type,cost:c.cost,text:c.text,moves:c.moves};
+ $('#form').innerHTML=LK+FIELDS.map(([k,l,t,x])=>{const v=k==='price'?val(c):k==='binders'?c.binders.join(', '):c[k]??'';
+  const inp=t==='fin'?finSel(v,c.game):t==='gsel'?`<select id="f_${k}"><option value="" ${v?'':'selected'}>Raw (not slabbed)</option>${GRADERS.concat(v&&!GRADERS.includes(v)?[v]:[]).map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`:t==='sel'?`<select id="f_${k}">${x.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`:`<input id="f_${k}" type="${t}" value="${esc(v)}" ${k==='game'?'list="gl"':''} ${t==='number'?'min="0" step="any"':''}>`;
+  return `<label class="${t==='sel'?'':x||''}">${l}${inp}</label>`}).join('')+`<datalist id="gl">${Object.keys(COL).map(g=>`<option>${g}</option>`).join('')}</datalist>`;
+ $('#dEdit').showModal();
+ const rf=()=>{const g=$('#f_game').value,cu=$('#f_finish').value;$('#f_finish').outerHTML=finSel(finOf(g).includes(cu)?cu:'',g)};$('#f_game').oninput=rf;$('#f_game').onchange=rf;
+ $('#ls').onclick=look;$('#lq').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();look()}};$('#lr').onclick=e=>{const b=e.target.closest('button');if(b)pick(R[+b.dataset.i])};
+}
+$('#eSave').onclick=()=>{const g=k=>$('#f_'+k).value.trim();
+ if(!g('name')){$('#f_name').focus();return}
+ const old=editId?S.cards.find(x=>x.id===editId):null,price=parseFloat(g('price'))||0,hist=old?[...old.hist]:[],hd=old?(ensureD(old),[...old.histD]):[];
+ if(price&&(!hist.length||hist[hist.length-1]!==price)){hist.push(price);hd.push(today())}
+ const c={type:pend.type,cost:pend.cost,text:pend.text,moves:pend.moves,src:pend.src,img:pend.img,sources:pend.sources,id:old?old.id:Date.now(),name:g('name'),set:g('set'),num:g('num'),year:g('year'),artist:g('artist'),game:g('game')||'Other',rarity:g('rarity'),cond:g('cond'),finish:g('finish'),grader:g('grader'),grade:g('grade'),qty:Math.max(1,parseInt(g('qty'))||1),paid:parseFloat(g('paid'))||0,acquired:g('acquired'),listed:g('listed')===''?undefined:Math.max(0,parseFloat(g('listed'))||0),hist:hist.length?hist:[0],histD:hist.length?hd:[today()],collected:g('collected'),notes:g('notes'),binders:g('binders').split(',').map(s=>s.trim()).filter(Boolean)};
+ c.binders=c.binders.filter(b=>!(S.bg||{})[b]||S.bg[b]===(c.game||'Other'));c.binders.forEach(b=>{if(!S.binders.includes(b))S.binders.push(b);(S.bg=S.bg||{})[b]=S.bg[b]||c.game||'Other'});
+ old?S.cards[S.cards.indexOf(old)]=c:S.cards.push(c);
+ save();setup();render();$('#dEdit').close()};
+$('#eCancel').onclick=()=>$('#dEdit').close();
+
