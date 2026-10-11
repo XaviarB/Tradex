@@ -13,11 +13,15 @@ window.TXBackend={
  providers:CFG.providers||[],
  ready:()=>load,
  async session(){const{data}=await sb.auth.getSession();const u=who(data&&data.session&&data.session.user);uid=u&&u.id;return u},
- onChange(signedIn,signedOut){sb.auth.onAuthStateChange((ev,s)=>{if(s&&s.user){uid=s.user.id;setTimeout(()=>signedIn(who(s.user)))}else if(ev==='SIGNED_OUT')signedOut()})},
+ // recovery: someone opened a password reset link and needs to choose a new password.
+ onChange(signedIn,signedOut,recovery){sb.auth.onAuthStateChange((ev,s)=>{if(ev==='PASSWORD_RECOVERY'&&recovery)setTimeout(recovery);if(s&&s.user){uid=s.user.id;setTimeout(()=>signedIn(who(s.user)))}else if(ev==='SIGNED_OUT')signedOut()})},
  async signUp(email,password){const d=await ok(sb.auth.signUp({email,password,options:{emailRedirectTo:here()}}));return{confirm:!d.session}},
  signIn:(email,password)=>ok(sb.auth.signInWithPassword({email,password})),
  emailLink:email=>ok(sb.auth.signInWithOtp({email,options:{emailRedirectTo:here(),shouldCreateUser:true}})),
  oauth:provider=>ok(sb.auth.signInWithOAuth({provider,options:{redirectTo:here()}})),
+ resetPassword:email=>ok(sb.auth.resetPasswordForEmail(email,{redirectTo:here()})),
+ updatePassword:password=>ok(sb.auth.updateUser({password})),
+ resendConfirm:email=>ok(sb.auth.resend({type:'signup',email,options:{emailRedirectTo:here()}})),
  signOut:()=>sb.auth.signOut(),
  // Every row changed since `since` (an updated_at from an earlier list), deleted ones included.
  async list(table,since){const out=[];for(let i=0;;i+=PAGE){let q=sb.from(table).select('*').order('updated_at');if(since)q=q.gte('updated_at',since);
