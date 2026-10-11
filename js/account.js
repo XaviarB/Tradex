@@ -130,10 +130,10 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
 #txa .go:disabled{opacity:.7;cursor:wait}
 #txa .go2{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:inherit;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;margin:8px 0 0;display:flex;align-items:center;justify-content:center;gap:10px}
 #txa .go2 svg{width:18px;height:18px}
-#txa .oauth{display:flex;justify-content:center;gap:54px;margin:6px 0 4px}
-#txa .circ{width:72px;height:72px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:inherit;display:grid;place-items:center;padding:0;margin:0;cursor:pointer;transition:transform .15s,border-color .15s}
+#txa .oauth{display:flex;justify-content:center;gap:54px;margin:8px 0 6px}
+#txa .circ{width:104px;height:104px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:inherit;display:grid;place-items:center;padding:0;margin:0;cursor:pointer;transition:transform .15s,border-color .15s}
 #txa .circ:hover{border-color:var(--acc);transform:translateY(-1px)}#txa .circ:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
-#txa .circ svg{width:30px;height:30px}
+#txa .circ svg{width:46px;height:46px}
 #txv{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9000;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);box-sizing:border-box;
  padding:10px 10px 10px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 @media(max-width:520px){#txv{width:calc(100% - 24px);font-size:13px}}#txv span{overflow-wrap:anywhere}
