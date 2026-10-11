@@ -240,22 +240,24 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
  const bx=g.querySelector('.bx'),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
  if(!rip||still||!bx||!bx.animate){g.classList.add('clear');setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},still?0:750);return}
  g.classList.add('clear','rip');
- const r=bx.getBoundingClientRect(),cut=Math.min(64,r.height*.12),n=14,pts=[];
- for(let i=0;i<=n;i++)pts.push([i/n*100,cut+(i%2?-1:1)*(3+Math.random()*4)]);
+ const r=bx.getBoundingClientRect(),cut=Math.min(64,r.height*.12),n=Math.round(r.width/7),pts=[],R=Math.random;
+ // a real tear wanders: a slow drift across the card, small fibre-sized wiggles, and the odd sharper snag
+ let y=cut+(R()-.5)*6,dy=(R()-.5)*1.2;for(let i=0;i<=n;i++){dy=Math.max(-1.6,Math.min(1.6,dy*.8+(R()-.5)*1.1));y=Math.max(cut-9,Math.min(cut+9,y+dy));
+  pts.push([i/n*100,+(y+(R()-.5)*1.6+(R()<.08?(R()-.4)*7:0)).toFixed(1)])}
  const edge=pts.map(([x,y])=>`${x}% ${y}px`),top=`polygon(0 0,100% 0,${edge.slice().reverse().join(',')})`,body=`polygon(${edge.join(',')},100% 100%,0 100%)`;
  const strip=bx.cloneNode(true);strip.removeAttribute('id');strip.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));strip.setAttribute('aria-hidden','true');
  Object.assign(strip.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',clipPath:top,transformOrigin:'0 '+cut+'px',zIndex:1});
  const fray=()=>{const v=document.createElementNS('http://www.w3.org/2000/svg','svg');v.setAttribute('viewBox',`0 0 100 ${cut+12}`);v.setAttribute('preserveAspectRatio','none');
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
-  v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
+  v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
  g.appendChild(strip);strip.appendChild(fray());bx.appendChild(fray());strip.scrollTop=bx.scrollTop;bx.style.clipPath=body;bx.style.animation='none';
  const E='cubic-bezier(.5,0,.75,0)';
  // 1) the strip peels up from the left like a foil tear, 2) it is flung away to the top right
  strip.animate([{transform:'none'},{transform:'translate(6px,-10px) rotate(-5deg)',offset:.35},{transform:'translate(40px,-34px) rotate(-12deg)',offset:.55},
   {transform:`translate(${innerWidth}px,${-innerHeight*.5}px) rotate(38deg)`}],{duration:800,easing:'ease-in',fill:'forwards'});
- // 3) the opened pack wobbles from the tear, lifts, and is tossed off the bottom left
+ // 3) the opened pack wobbles from the tear, lifts, and is tossed off the top left
  bx.animate([{transform:'none'},{transform:'rotate(.8deg)',offset:.1},{transform:'rotate(-.6deg)',offset:.2},{transform:'none',offset:.3},
-  {transform:'translateY(-22px) rotate(-2deg)',offset:.48},{transform:`translate(${-innerWidth*.45}px,${innerHeight}px) rotate(-26deg)`}],{duration:1150,easing:E,fill:'forwards'});
+  {transform:'translateY(-22px) rotate(-2deg)',offset:.48},{transform:`translate(${-innerWidth*.7}px,${-innerHeight*1.1}px) rotate(-28deg)`}],{duration:1150,easing:E,fill:'forwards'});
  setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},1200)}
 function guest(rip){LS('tradex_guest','1');lift(rip);H.classList.remove('pend');guestBtn()}
 function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
