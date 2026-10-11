@@ -134,6 +134,11 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
 #txa .circ{width:56px;height:56px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:inherit;display:grid;place-items:center;padding:0;margin:0;cursor:pointer;transition:transform .15s,border-color .15s}
 #txa .circ:hover{border-color:var(--acc);transform:translateY(-1px)}#txa .circ:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
 #txa .circ svg{width:24px;height:24px}
+#txv{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9000;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);box-sizing:border-box;
+ padding:10px 10px 10px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+@media(max-width:520px){#txv{width:calc(100% - 24px);font-size:13px}}#txv span{overflow-wrap:anywhere}
+#txv.ok{padding:10px 16px;border-color:var(--acc);color:var(--acc);font-weight:600}
+#txv button{border:0;background:none;color:var(--acc);font:inherit;font-weight:700;cursor:pointer;padding:6px 8px;margin:0;width:auto}#txv #txvx{color:var(--mut);font-weight:400}
 #txa .or{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12px;margin:14px 0}#txa .or:before,#txa .or:after{content:'';flex:1;height:1px;background:var(--line)}
 #txa .spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:txs .7s linear infinite}@keyframes txs{to{transform:rotate(1turn)}}
 #txa .rules{list-style:none;padding:0;margin:-4px 0 12px;font-size:12px;color:var(--mut)}#txa .rules li:before{content:'○ '}#txa .rules li.ok{color:var(--acc)}#txa .rules li.ok:before{content:'✓ '}
@@ -160,7 +165,7 @@ function screen(){const up=view==='up',fan='',x=`<button type="button" class="x"
   return fan+`<form class="bx" id="txf" novalidate>${x}${head}<div class="seg" role="tablist"><button type="button" role="tab" data-view="in" aria-selected="${!up}">Sign in</button><button type="button" role="tab" data-view="up" aria-selected="${up}">Create account</button></div>
   ${emailF}
   <div class="fld"><label for="txp">Password</label><input id="txp" type="password" autocomplete="${up?'new-password':'current-password'}" minlength="8" required><button type="button" class="eye" id="txeye" aria-label="Show password">Show</button></div>
-  ${up?'<ul class="rules" id="txrules"><li data-r="len">At least 8 characters</li><li data-r="mix">A letter and a number</li></ul>':'<div class="txrow"><button type="button" class="lnk" id="txl">Email me a link instead</button><button type="button" class="lnk" data-view="reset">Forgot password?</button></div>'}
+  ${up?'<ul class="rules" id="txrules"><li data-r="len">At least 8 characters</li><li data-r="mix">A letter and a number</li></ul>':'<div class="txrow"><span></span><button type="button" class="lnk" data-view="reset">Forgot password?</button></div>'}
   <button class="go" type="submit" id="txgo">${up?'Create account':'Sign in'}</button>
   <div class="or">or</div>${pv}
   <div class="msg" id="txmsg" role="status" aria-live="polite"></div>
@@ -204,7 +209,8 @@ document.addEventListener('submit',e=>{if(e.target.id!=='txf')return;e.preventDe
  if((view==='up'||view==='newpw')&&!(password.length>=8&&/[a-z]/i.test(password)&&/\d/.test(password))){say('Choose a password with at least 8 characters, including a letter and a number.',true);p.focus();return}
  LS('tradex_last_email',email);say('');
  spin(async()=>{try{
-  if(view==='up'){if((await BK.signUp(email,password)).confirm){note={text:`We sent a confirmation link to ${email}. Open it to finish creating your account.`,resend:true};go('sent')}}
+  if(view==='up'){if((await BK.signUp(email,password)).confirm){note={text:`We sent a confirmation link to ${email}. Open it to finish creating your account.`,resend:true};go('sent')}
+   else{SS('tradex_verify_hide',null);BK.sendVerify(email).catch(e=>console.warn('Tradéx verify email:',e))}}
   else if(view==='in')await BK.signIn(email,password);
   else if(view==='reset'){await BK.resetPassword(email);note={text:`We sent a password reset link to ${email}.`};go('sent')}
   else if(view==='newpw'){await BK.updatePassword(password);lift(true);recovering=false;if(user)status(state||'ok')}
@@ -212,8 +218,6 @@ document.addEventListener('submit',e=>{if(e.target.id!=='txf')return;e.preventDe
 document.addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
  if(t.closest('#txa')&&t.dataset.view){go(t.dataset.view);return}
  if(t.id==='txeye'){const p=$('#txp'),show=p.type==='password';p.type=show?'text':'password';t.textContent=show?'Hide':'Show';t.setAttribute('aria-label',show?'Hide password':'Show password');p.focus();return}
- if(t.id==='txl'){email=$('#txe').value.trim();if(!emailOk(email)){say('Enter your email first, then tap the link button.',true);$('#txe').focus();return}
-  LS('tradex_last_email',email);try{await BK.emailLink(email);note={text:`We sent a sign-in link to ${email}. Open it on this device to sign in, no password needed.`};go('sent')}catch(x){const[f,a]=friendly(x);say(f,true,a)}return}
  if(t.id==='txresend'){t.disabled=true;await resend();setTimeout(()=>{t.disabled=false},30000);return}
  if(t.dataset.oauth){const p=t.dataset.oauth;say('');
   if(!(await BK.providers()).includes(p)){say(`${ttl(p)} sign-in isn’t switched on yet. Use your email for now.`,true);return}
@@ -304,9 +308,22 @@ function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b
 const POP=window.name==='tradex-auth'&&!!window.opener;
 addEventListener('message',e=>{if(e.origin===location.origin&&e.data&&e.data.tx==='auth')BK.session().then(u=>{if(u)signedIn(u)})});
 
+// ---------- email verification ----------
+// New accounts go straight into the app; a bar at the bottom asks them to open the link we emailed, until they do.
+function SS(k,v){try{if(v===undefined)return sessionStorage.getItem(k);v===null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}}
+function verifyBar(msg){let b=$('#txv');if(!user||user.verified||SS('tradex_verify_hide')){if(b)b.remove();return}
+ if(!b){b=document.createElement('div');b.id='txv';b.setAttribute('role','status');document.body.appendChild(b)}
+ b.innerHTML=`<span>${msg?esc(msg):`Verify your email: we sent a link to <b>${esc(user.email)}</b>.`}</span><button type="button" id="txvr">Resend</button><button type="button" id="txvx" aria-label="Hide">✕</button>`}
+document.addEventListener('click',async e=>{const t=e.target.closest('#txvr,#txvx');if(!t)return;
+ if(t.id==='txvx'){SS('tradex_verify_hide','1');verifyBar();return}
+ t.disabled=true;try{await BK.sendVerify(user.email);verifyBar(`Sent again to ${user.email}. Check your inbox.`)}catch(x){verifyBar(friendly(x)[0])}});
+async function verifiedReturn(){const q=new URLSearchParams(location.search);if(q.get('verified')!=='1')return;
+ q.delete('verified');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);
+ try{await BK.markVerified();user.verified=true;verifyBar();const b=document.createElement('div');b.id='txv';b.className='ok';b.textContent='Email verified ✓';document.body.appendChild(b);setTimeout(()=>b.remove(),3000)}catch(e){console.warn('Tradéx verify:',e)}}
+
 // ---------- start ----------
 async function signedIn(u){if(POP){try{window.opener.postMessage({tx:'auth'},location.origin)}catch(e){}window.close();return}
- if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering)lift(true);H.classList.remove('pend');me();
+ if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering)lift(true);H.classList.remove('pend');me();verifyBar();verifiedReturn();
  try{await adopt()}catch(e){console.warn('Tradéx sync:',e);status(navigator.onLine?'error':'offline')}}
 BK.ready().then(()=>{BK.onChange(signedIn,()=>{if(user)location.reload()},()=>{recovering=true;view='newpw';gate()});return BK.session()})
  .then(u=>{if(u)signedIn(u);else if(POP){document.body.innerHTML='<p style="font:16px system-ui;padding:40px;text-align:center">Signing you in…</p>';H.classList.remove('pend')}
