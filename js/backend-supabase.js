@@ -3,7 +3,7 @@
    Active when /config.js sets window.TX_SUPABASE = {url, anonKey, providers}. Tables and privacy rules: supabase/schema.sql. */
 (()=>{
 const CFG=window.TX_SUPABASE;if(!CFG||!CFG.url||!CFG.anonKey)return;
-const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js',BUCKET='card-images',PAGE=1000;
+const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js',BUCKET='card-images',PAGE=1000;
 let sb=null;const here=()=>location.origin+location.pathname,who=u=>u&&{id:u.id,email:u.email};
 const ok=async q=>{const{data,error}=await q;if(error)throw new Error(error.message||String(error));return data};
 const load=new Promise((res,rej)=>{if(window.supabase&&window.supabase.createClient)return res();const s=document.createElement('script');s.src=SDK;s.onload=res;s.onerror=()=>rej(new Error('Couldn’t load sign-in. Check your connection and reload.'));document.head.appendChild(s)})

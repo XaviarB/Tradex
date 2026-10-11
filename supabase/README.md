@@ -1,15 +1,15 @@
 # Accounts setup (Supabase)
 
 With these steps, every visitor has to sign in or sign up, and each collection is saved to its owner's account and syncs across devices.
-If the env vars below aren't set, the app runs as before and saves only in the browser.
+With `SUPABASE_URL` set to an empty string, the app runs as before and saves only in the browser.
 
 1. Create a project at supabase.com.
 2. In the SQL editor, run `supabase/schema.sql`. It creates the tables, the privacy rules (each person can only read and write their own rows), and the `card-images` photo bucket.
 3. Under Authentication → URL Configuration, set the Site URL to where Tradéx is hosted and add it to the redirect URLs.
 4. Optional: turn on the Google and Apple providers under Authentication → Providers.
-5. Set these on the server that runs `npm start`:
-   - `SUPABASE_URL`: Project Settings → API → Project URL
-   - `SUPABASE_ANON_KEY`: Project Settings → API → anon public key (it's safe in the page; the privacy rules protect the data)
+5. `server.js` already points at the Tradéx project (`ujjbfxcmeaoevoisgerl`) and its publishable key. To use a different project, set these on the server that runs `npm start`:
+   - `SUPABASE_URL`: the Project URL. Set it to an empty string to run without accounts.
+   - `SUPABASE_ANON_KEY`: the publishable key (`sb_publishable_…`, or the legacy anon key). It's safe in the page because the privacy rules protect the data.
    - `SUPABASE_PROVIDERS`: optional, for example `google,apple`
 
 Never put the service role key in the page or in these variables.
