@@ -27,6 +27,14 @@ http.createServer((req, res) => {
       res.end(data);
     });
   }
+  // Public privacy policy, linked from Google's sign-in setup.
+  if (/^\/privacy(\.html)?\/?$/.test(req.url.split('?')[0])) {
+    return fs.readFile(path.join(__dirname, 'privacy.html'), (err, data) => {
+      if (err) { res.writeHead(404); return res.end('not found'); }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(data);
+    });
+  }
   fs.readFile(FILE, (err, data) => {
     if (err) { res.writeHead(500); return res.end('index.html not found'); }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
