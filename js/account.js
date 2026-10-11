@@ -130,7 +130,7 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
 #txa .go:disabled{opacity:.7;cursor:wait}
 #txa .go2{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:inherit;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;margin:8px 0 0;display:flex;align-items:center;justify-content:center;gap:10px}
 #txa .go2 svg{width:18px;height:18px}
-#txa .oauth{display:flex;justify-content:center;gap:44px;margin:6px 0 4px}
+#txa .oauth{display:flex;justify-content:center;gap:54px;margin:6px 0 4px}
 #txa .circ{width:72px;height:72px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:inherit;display:grid;place-items:center;padding:0;margin:0;cursor:pointer;transition:transform .15s,border-color .15s}
 #txa .circ:hover{border-color:var(--acc);transform:translateY(-1px)}#txa .circ:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
 #txa .circ svg{width:30px;height:30px}
