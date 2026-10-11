@@ -107,7 +107,7 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
  background:rgba(6,10,9,.38);-webkit-backdrop-filter:blur(9px) saturate(1.15);backdrop-filter:blur(9px) saturate(1.15);animation:txin .35s ease-out;
  transition:background .7s ease,backdrop-filter .7s ease,-webkit-backdrop-filter .7s ease}
 #txa.clear{background:rgba(6,10,9,0);-webkit-backdrop-filter:blur(0) saturate(1);backdrop-filter:blur(0) saturate(1);pointer-events:none}
-#txa.rip{transition-duration:1.2s;transition-delay:.25s;overflow:hidden}#txa.rip .bx{pointer-events:none}
+#txa.rip{transition-duration:1.1s;transition-delay:1.1s;overflow:hidden}#txa.rip .bx{pointer-events:none}
 #txa.clear:not(.rip) .bx{transition:transform .35s ease-in,opacity .3s ease-in;transform:translateY(16px) scale(.97);opacity:0}
 @media(prefers-reduced-motion:reduce){#txa,#txa.clear .bx{transition:none;animation:none}}
 @keyframes txin{from{opacity:0}}@keyframes txup{from{transform:translateY(40px);opacity:0}}
@@ -249,30 +249,39 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
   v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
  const at=x=>{for(let i=1;i<pts.length;i++)if(pts[i][0]>=x){const[a,b]=[pts[i-1],pts[i]];return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return pts[pts.length-1][1]};
- // The torn-off strip is cut into narrow columns so it can curl up column by column behind the light sweep.
- const wrap=document.createElement('div'),N=12,SW=560;wrap.setAttribute('aria-hidden','true');
- Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,perspective:'700px',perspectiveOrigin:`50% ${cut}px`,transformOrigin:`0 ${cut}px`});
+ // The torn-off strip is cut into narrow columns so it can fold up column by column behind the light.
+ const wrap=document.createElement('div'),N=24,SW=1150;wrap.setAttribute('aria-hidden','true');
+ Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,perspective:'800px',perspectiveOrigin:`50% ${cut}px`,transformOrigin:`0 ${cut}px`});
+ const slices=[];
  for(let k=0;k<N;k++){const x0=k/N*100,x1=(k+1)/N*100,inner=pts.filter(([x])=>x>x0&&x<x1).reverse().map(([x,y])=>`${x}% ${y}px`);
-  const sl=bx.cloneNode(true);sl.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));sl.appendChild(fray());
+  const sl=bx.cloneNode(true);sl.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
   Object.assign(sl.style,{position:'absolute',left:0,top:0,width:r.width+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',boxSizing:'border-box',
-   clipPath:`polygon(${x0-.15}% 0,${x1+.15}% 0,${x1+.15}% ${at(x1)}px,${inner.join(',')}${inner.length?',':''}${x0-.15}% ${at(x0)}px)`,transformOrigin:`${(x0+x1)/2}% ${cut}px`});
-  wrap.appendChild(sl);sl.scrollTop=bx.scrollTop;
-  const d=60+k/N*SW*.75;
-  sl.animate([{transform:'none',filter:'brightness(1)'},{transform:'rotateX(-18deg)',filter:'brightness(1.45)',offset:.45},{transform:'translateY(-5px) rotateX(-48deg)',filter:'brightness(1.15)'}],
-   {duration:260,delay:d,easing:'ease-out',fill:'both'})}
- g.appendChild(wrap);bx.appendChild(fray());bx.style.clipPath=`polygon(${edge.join(',')},100% 100%,0 100%)`;bx.style.animation='none';
- // A band of light sweeps left to right across the whole card, like foil catching the light as the pack is torn.
- const glow=document.createElement('div');glow.setAttribute('aria-hidden','true');
- Object.assign(glow.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:getComputedStyle(bx).borderRadius,overflow:'hidden',pointerEvents:'none',zIndex:2});
- glow.innerHTML='<i style="position:absolute;top:-20%;bottom:-20%;left:0;width:45%;background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.05) 25%,rgba(255,255,255,.42) 50%,rgba(220,255,240,.12) 70%,transparent 100%);mix-blend-mode:screen;transform:translateX(-110%) skewX(-12deg)"></i>';
- g.appendChild(glow);glow.firstChild.animate([{transform:'translateX(-110%) skewX(-12deg)'},{transform:`translateX(${r.width*1.05}px) skewX(-12deg)`}],{duration:SW,easing:'cubic-bezier(.4,.1,.6,.9)',fill:'forwards'})
-  .onfinish=()=>glow.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'});
- const T=SW+140,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
- // Once the light has passed, the curled strip is flung to the top right…
+   clipPath:`polygon(${x0-.15}% 0,${x1+.15}% 0,${x1+.15}% ${at(x1)}px,${inner.join(',')}${inner.length?',':''}${x0-.15}% ${at(x0)}px)`,transformOrigin:`${(x0+x1)/2}% ${at((x0+x1)/2)}px`});
+  wrap.appendChild(sl);sl.scrollTop=bx.scrollTop;slices.push(sl);
+  // each column folds up off the tear line just after the light has passed under it
+  sl.animate([{transform:'none',filter:'brightness(1)'},{transform:'translateY(-2px) rotateX(-35deg)',filter:'brightness(1.5)',offset:.4},{transform:'translateY(-6px) rotateX(-70deg)',filter:'brightness(1.1)'}],
+   {duration:560,delay:x1/100*SW-60,easing:'ease-out',fill:'both'})}
+ g.appendChild(wrap);bx.style.clipPath=`polygon(${edge.join(',')},100% 100%,0 100%)`;bx.style.animation='none';
+ // A spark of light runs slowly along the tear line, lighting the torn edge as it goes.
+ const W=r.width,H=cut+24,P=pts.map(([x,y])=>[x/100*W,y]),d='M'+P.map(([x,y])=>x.toFixed(1)+' '+y).join(' L'),len=P.reduce((a,p,i)=>i?a+Math.hypot(p[0]-P[i-1][0],p[1]-P[i-1][1]):0,0);
+ const lit=document.createElement('div');lit.setAttribute('aria-hidden','true');
+ Object.assign(lit.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:H+'px',pointerEvents:'none',zIndex:2,overflow:'visible'});
+ lit.innerHTML=`<svg width="${W}" height="${H}" style="overflow:visible;display:block"><defs><radialGradient id="txsp"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="#e9fff6" stop-opacity=".9"/><stop offset="1" stop-color="#7fe0c0" stop-opacity="0"/></radialGradient>
+  <filter id="txbl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5"/></filter></defs>
+  <path d="${d}" fill="none" stroke="#bff5e2" stroke-width="5" stroke-opacity=".55" filter="url(#txbl)" stroke-dasharray="${len}" stroke-dashoffset="${len}"/>
+  <path d="${d}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linejoin="bevel" stroke-dasharray="${len}" stroke-dashoffset="${len}"/>
+  <ellipse rx="34" ry="16" fill="url(#txsp)" opacity=".9"/><circle r="3.2" fill="#fff"/></svg>`;
+ g.appendChild(lit);const [glowP,lineP]=lit.querySelectorAll('path'),[halo,dot]=[lit.querySelector('ellipse'),lit.querySelector('circle')],t0=performance.now();
+ (function step(now){const q=Math.min(1,(now-t0)/SW),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2,pt=lineP.getPointAtLength(e*len);
+  glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
+  if(q<1)requestAnimationFrame(step);else{halo.animate([{opacity:.9},{opacity:0}],{duration:200,fill:'forwards'});dot.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
+   bx.appendChild(fray());slices.forEach(sl=>sl.appendChild(fray()));lit.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:'forwards'})}})(t0);
+ const T=SW+380,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
+ // Once the strip has folded all the way across, it is flung to the top right…
  wrap.animate([{transform:'none',offset:0},{transform:'none',offset:T/(T+520)},{transform:'translate(30px,-30px) rotate(-8deg)',offset:(T+120)/(T+520)},
   {transform:`translate(${innerWidth}px,${-innerHeight*.6}px) rotate(35deg)`}],{duration:T+520,easing:'ease-in',fill:'forwards'});
  // …and the opened pack shivers from the tear, lifts, and is tossed off the top left while the haze clears.
- const f=t=>t/tot;bx.animate([{transform:'none'},{transform:'rotate(.6deg)',offset:f(140)},{transform:'rotate(-.5deg)',offset:f(280)},{transform:'none',offset:f(420)},{transform:'none',offset:f(T)},
+ const f=t=>t/tot;bx.animate([{transform:'none'},{transform:'rotate(.4deg)',offset:f(SW*.3)},{transform:'rotate(-.4deg)',offset:f(SW*.6)},{transform:'none',offset:f(SW*.9)},{transform:'none',offset:f(T)},
   {transform:'translateY(-22px) rotate(-2deg)',offset:f(T+200)},{transform:`translate(${-innerWidth*.7}px,${-innerHeight*1.1}px) rotate(-28deg)`}],{duration:tot,easing:E,fill:'forwards'});
  setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},tot+60)}
 function guest(rip){LS('tradex_guest','1');lift(rip);H.classList.remove('pend');guestBtn()}
