@@ -130,6 +130,10 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
 #txa .go:disabled{opacity:.7;cursor:wait}
 #txa .go2{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:inherit;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;margin:8px 0 0;display:flex;align-items:center;justify-content:center;gap:10px}
 #txa .go2 svg{width:18px;height:18px}
+#txa .oauth{display:flex;justify-content:center;gap:18px;margin:2px 0 0}
+#txa .circ{width:56px;height:56px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:inherit;display:grid;place-items:center;padding:0;margin:0;cursor:pointer;transition:transform .15s,border-color .15s}
+#txa .circ:hover{border-color:var(--acc);transform:translateY(-1px)}#txa .circ:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
+#txa .circ svg{width:24px;height:24px}
 #txa .or{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12px;margin:14px 0}#txa .or:before,#txa .or:after{content:'';flex:1;height:1px;background:var(--line)}
 #txa .spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:txs .7s linear infinite}@keyframes txs{to{transform:rotate(1turn)}}
 #txa .rules{list-style:none;padding:0;margin:-4px 0 12px;font-size:12px;color:var(--mut)}#txa .rules li:before{content:'○ '}#txa .rules li.ok{color:var(--acc)}#txa .rules li.ok:before{content:'✓ '}
@@ -152,14 +156,13 @@ let view=LS('tradex_auth_view')==='up'?'up':'in',email=LS('tradex_last_email')||
 const ttl=s=>s[0].toUpperCase()+s.slice(1);
 function screen(){const up=view==='up',fan='',x=`<button type="button" class="x" id="txguest2" aria-label="Close and continue as guest">✕</button>`,head='<div class="txlogo">Tradéx</div><p class="txtag">Your card collection, on every device.</p>';
  const emailF=`<div class="fld"><label for="txe">Email</label><input id="txe" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required value="${esc(email)}"></div>`;
- if(view==='in'||view==='up'){const pv=['google','apple'].map(p=>`<button type="button" class="go2" data-oauth="${p}">${ICON[p]}Continue with ${ttl(p)}</button>`).join('');
+ if(view==='in'||view==='up'){const pv='<div class="oauth">'+['google','apple'].map(p=>`<button type="button" class="circ" data-oauth="${p}" aria-label="Continue with ${ttl(p)}" title="Continue with ${ttl(p)}">${ICON[p]}</button>`).join('')+'</div>';
   return fan+`<form class="bx" id="txf" novalidate>${x}${head}<div class="seg" role="tablist"><button type="button" role="tab" data-view="in" aria-selected="${!up}">Sign in</button><button type="button" role="tab" data-view="up" aria-selected="${up}">Create account</button></div>
   ${emailF}
   <div class="fld"><label for="txp">Password</label><input id="txp" type="password" autocomplete="${up?'new-password':'current-password'}" minlength="8" required><button type="button" class="eye" id="txeye" aria-label="Show password">Show</button></div>
-  ${up?'<ul class="rules" id="txrules"><li data-r="len">At least 8 characters</li><li data-r="mix">A letter and a number</li></ul>':'<div class="txrow"><span></span><button type="button" class="lnk" data-view="reset">Forgot password?</button></div>'}
+  ${up?'<ul class="rules" id="txrules"><li data-r="len">At least 8 characters</li><li data-r="mix">A letter and a number</li></ul>':'<div class="txrow"><button type="button" class="lnk" id="txl">Email me a link instead</button><button type="button" class="lnk" data-view="reset">Forgot password?</button></div>'}
   <button class="go" type="submit" id="txgo">${up?'Create account':'Sign in'}</button>
   <div class="or">or</div>${pv}
-  ${up?'':'<button type="button" class="go2" id="txl">✉️ Email me a sign-in link</button>'}
   <div class="msg" id="txmsg" role="status" aria-live="polite"></div>
   <button type="button" class="guest" id="txguest">Just looking? <b>Continue as guest →</b></button>
   <p class="fine">${up?'Your cards are saved to your account and sync across your devices.':'Guests can look around. Sign in to save your cards to your account.'}</p></form>`}
@@ -249,7 +252,7 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
   v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
  const at=x=>{for(let i=1;i<pts.length;i++)if(pts[i][0]>=x){const[a,b]=[pts[i-1],pts[i]];return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return pts[pts.length-1][1]};
- const wrap=document.createElement('div'),SW=780,W=r.width,PX=pts.map(([x,y])=>[x/100*W,y]);wrap.setAttribute('aria-hidden','true');
+ const wrap=document.createElement('div'),SW=580,W=r.width,PX=pts.map(([x,y])=>[x/100*W,y]);wrap.setAttribute('aria-hidden','true');
  Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,overflow:'visible',transformOrigin:`100% ${cut}px`});
  // The torn-off title strip stays one piece: the part not yet folded is the card itself, and the part folded over
  // is its mirror image across a slanted crease, drawn as the silver inside of the foil draping down over the right side.
