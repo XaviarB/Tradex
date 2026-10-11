@@ -249,40 +249,41 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
   v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
  const at=x=>{for(let i=1;i<pts.length;i++)if(pts[i][0]>=x){const[a,b]=[pts[i-1],pts[i]];return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return pts[pts.length-1][1]};
-  const wrap=document.createElement('div'),N=44,SW=1300,W=r.width,CR=Math.max(12,cut*.32);wrap.setAttribute('aria-hidden','true');
- Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,perspective:'2600px',perspectiveOrigin:`50% ${cut}px`,transformStyle:'preserve-3d',transformOrigin:`100% ${cut}px`});
- // The torn-off title strip is cut into narrow columns; each has a front (the card) and a back showing
- // the silver inside of the foil, so the strip can roll over itself to the right like a page being turned.
- const cols=[];
- for(let k=0;k<N;k++){const x0=k/N*W,x1=(k+1)/N*W,xc=(x0+x1)/2,o=.8,poly=[[x0-o,0],[x1+o,0],[x1+o,at(x1/W*100)],...pts.map(([x,y])=>[x/100*W,y]).filter(([x])=>x>x0&&x<x1).reverse(),[x0-o,at(x0/W*100)]];
-  const sl=bx.cloneNode(true);sl.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
-  Object.assign(sl.style,{position:'absolute',left:0,top:0,width:W+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',boxSizing:'border-box',backfaceVisibility:'hidden',
-   clipPath:`polygon(${poly.map(([x,y])=>x+'px '+y+'px').join(',')})`,transformOrigin:`${xc}px 0`});
-  const bk=document.createElement('div');Object.assign(bk.style,{position:'absolute',left:0,top:0,width:W+'px',height:r.height+'px',backfaceVisibility:'hidden',
-   background:`linear-gradient(180deg,#dfe7e4,#aebbb6 ${cut*.55}px,#8d9a95 ${cut}px)`,borderRadius:getComputedStyle(bx).borderRadius,
-   clipPath:`polygon(${poly.map(([x,y])=>(2*xc-x)+'px '+y+'px').join(',')})`,transformOrigin:`${xc}px 0`});
-  wrap.append(sl,bk);sl.scrollTop=bx.scrollTop;cols.push({sl,bk,xc})}
- const roll=tip=>{const c=(tip+Math.PI*CR)/2;
-  for(const {sl,bk,xc} of cols){const d=c-xc;let x=xc,z=0,th=0;
-   if(d>0&&d<Math.PI*CR){th=d/CR;x=c-CR*Math.sin(th);z=CR*(1-Math.cos(th))}else if(d>=Math.PI*CR){th=Math.PI;x=c+(d-Math.PI*CR);z=2*CR}
-   const tr=`translate3d(${(x-xc).toFixed(2)}px,0,${z.toFixed(2)}px) rotateY(${th.toFixed(4)}rad)`,lift=Math.sin(th);
-   sl.style.transform=tr;bk.style.transform=tr+' rotateY(180deg)';sl.style.filter=`brightness(${(1+1.6*lift).toFixed(3)})`;bk.style.filter=`brightness(${(.78+.4*lift).toFixed(3)})`}};
- const slices=cols.map(c=>c.sl);
+ const wrap=document.createElement('div'),SW=1300,W=r.width,PX=pts.map(([x,y])=>[x/100*W,y]);wrap.setAttribute('aria-hidden','true');
+ Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,overflow:'visible',transformOrigin:`100% ${cut}px`});
+ // The torn-off title strip stays one piece: the part not yet folded is the card itself, and the part folded over
+ // is its mirror image across a slanted crease, drawn as the silver inside of the foil draping down over the right side.
+ const shape=[[0,0],[W,0],[W,PX[PX.length-1][1]],...PX.slice().reverse(),[0,PX[0][1]]];
+ const half=(poly,n,k)=>{const out=[],side=q=>n[0]*q[0]+n[1]*q[1]-k;for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],sa=side(a),sb=side(b);
+  if(sa>=0)out.push(a);if((sa>=0)!==(sb>=0)){const t=sa/(sa-sb);out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}}return out};
+ const front=bx.cloneNode(true);front.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+ Object.assign(front.style,{position:'absolute',left:0,top:0,width:W+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',boxSizing:'border-box'});
+ const NS='http://www.w3.org/2000/svg',fl=document.createElementNS(NS,'svg');fl.setAttribute('width',W);fl.setAttribute('height',r.height);
+ fl.style.cssText='position:absolute;left:0;top:0;overflow:visible;filter:drop-shadow(1px 5px 6px rgba(0,0,0,.45))';
+ fl.innerHTML='<defs><linearGradient id="txfl" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8f9c97"/><stop offset=".05" stop-color="#f6fcfa"/><stop offset=".16" stop-color="#d3ddd9"/><stop offset=".6" stop-color="#a9b6b1"/><stop offset="1" stop-color="#7e8b87"/></linearGradient></defs><polygon fill="url(#txfl)"/><polyline fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2" stroke-linejoin="bevel"/>';
+ const [gr,flap,rim]=[fl.querySelector('linearGradient'),fl.querySelector('polygon'),fl.querySelector('polyline')];
+ // crease slants so the folded end comes over at a downward angle and ends just past the right edge, hanging below the strip
+ const A=.13,nv=[Math.cos(A),Math.sin(A)],kEnd=.5*W/nv[0];
+ const roll=e=>{const k=e*kEnd,f=half(shape,nv,k),back=half(shape,[-nv[0],-nv[1]],-k).map(([x,y])=>{const dd=nv[0]*x+nv[1]*y-k;return[x-2*dd*nv[0],y-2*dd*nv[1]]});
+  front.style.clipPath=f.length>2?`polygon(${f.map(([x,y])=>x.toFixed(1)+'px '+y.toFixed(1)+'px').join(',')})`:'polygon(0 0,0 0,0 0)';
+  const pt=back.map(([x,y])=>x.toFixed(1)+','+y.toFixed(1)).join(' ');flap.setAttribute('points',pt);rim.setAttribute('points',back.length?pt+' '+back[0].join(','):'');
+  const q=[k*nv[0],k*nv[1]];gr.setAttribute('x1',q[0]);gr.setAttribute('y1',q[1]);gr.setAttribute('x2',q[0]+nv[0]*W*.55);gr.setAttribute('y2',q[1]+nv[1]*W*.55)};
+ wrap.append(front,fl);front.scrollTop=bx.scrollTop;roll(0);
  g.appendChild(wrap);bx.style.clipPath=`polygon(${edge.join(',')},100% 100%,0 100%)`;bx.style.animation='none';
  // A spark of light runs slowly along the tear line, lighting the torn edge; the strip's left end is pulled along with it.
  const H=cut+24,P=pts.map(([x,y])=>[x/100*W,y]),d='M'+P.map(([x,y])=>x.toFixed(1)+' '+y).join(' L'),len=P.reduce((a,p,i)=>i?a+Math.hypot(p[0]-P[i-1][0],p[1]-P[i-1][1]):0,0);
  const lit=document.createElement('div');lit.setAttribute('aria-hidden','true');
- Object.assign(lit.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:H+'px',pointerEvents:'none',zIndex:2,overflow:'visible'});
+ Object.assign(lit.style,{position:'absolute',left:0,top:0,width:W+'px',height:H+'px',pointerEvents:'none',overflow:'visible'});
  lit.innerHTML=`<svg width="${W}" height="${H}" style="overflow:visible;display:block"><defs><radialGradient id="txsp"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="#e9fff6" stop-opacity=".9"/><stop offset="1" stop-color="#7fe0c0" stop-opacity="0"/></radialGradient>
   <filter id="txbl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5"/></filter></defs>
   <path d="${d}" fill="none" stroke="#bff5e2" stroke-width="5" stroke-opacity=".55" filter="url(#txbl)" stroke-dasharray="${len}" stroke-dashoffset="${len}"/>
   <path d="${d}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linejoin="bevel" stroke-dasharray="${len}" stroke-dashoffset="${len}"/>
   <ellipse rx="34" ry="16" fill="url(#txsp)" opacity=".9"/><circle r="3.2" fill="#fff"/></svg>`;
- g.appendChild(lit);const [glowP,lineP]=lit.querySelectorAll('path'),[halo,dot]=[lit.querySelector('ellipse'),lit.querySelector('circle')],t0=performance.now();
+ wrap.insertBefore(lit,fl);const [glowP,lineP]=lit.querySelectorAll('path'),[halo,dot]=[lit.querySelector('ellipse'),lit.querySelector('circle')],t0=performance.now();
  (function step(now){const q=Math.min(1,(now-t0)/SW),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2,pt=lineP.getPointAtLength(e*len);
-  glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);roll(pt.x);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
+  glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);roll(e);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
   if(q<1)requestAnimationFrame(step);else{halo.animate([{opacity:.9},{opacity:0}],{duration:200,fill:'forwards'});dot.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
-   bx.appendChild(fray());slices.forEach(sl=>sl.appendChild(fray()));lit.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:'forwards'})}})(t0);
+   bx.appendChild(fray());front.appendChild(fray());lit.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:'forwards'})}})(t0);
  const T=SW+380,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
  // Once the strip has folded all the way across, it is flung to the top right…
  wrap.animate([{transform:'none',offset:0},{transform:'none',offset:T/(T+520)},{transform:'translate(30px,-30px) rotate(-8deg)',offset:(T+120)/(T+520)},
