@@ -104,14 +104,10 @@ async function adopt(){SY=loadSY();if(SY&&SY.uid===user.id)return sync();
 
 // ---------- UI: sign-in screen and account menu ----------
 const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;visibility:visible;color:var(--ink);
- background:radial-gradient(1200px 600px at 85% -10%,color-mix(in srgb,var(--acc) 22%,transparent),transparent 60%),radial-gradient(900px 500px at -10% 110%,color-mix(in srgb,var(--acc2) 18%,transparent),transparent 60%),var(--bg)}
-#txa .fan{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-#txa .fan i{position:absolute;width:150px;height:210px;border-radius:12px;opacity:.18;box-shadow:0 20px 40px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15)}
-#txa .fan i:nth-child(1){left:6%;top:12%;transform:rotate(-14deg);background:linear-gradient(160deg,#c9472f,#1c2422)}
-#txa .fan i:nth-child(2){left:10%;top:18%;transform:rotate(-4deg);background:linear-gradient(160deg,#3b5b8c,#1c2422)}
-#txa .fan i:nth-child(3){right:7%;bottom:10%;transform:rotate(12deg);background:linear-gradient(160deg,#b8862b,#1c2422)}
-#txa .fan i:nth-child(4){right:11%;bottom:16%;transform:rotate(2deg);background:linear-gradient(160deg,#6b4a8a,#1c2422)}
-#txa .bx{position:relative;width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px 24px 20px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+ background:rgba(6,10,9,.32);animation:txin .25s ease-out}
+@keyframes txin{from{opacity:0}}@keyframes txup{from{transform:translateY(40px);opacity:0}}
+#txa .x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--mut);cursor:pointer;font-size:16px;margin:0;padding:0}
+#txa .bx{position:relative;width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px 24px 20px;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:txup .3s ease-out}
 #txa .txlogo{font:800 30px/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.02em;margin:0 0 6px;padding:0;background:none}
 #txa .txtag{font-size:14px;color:var(--mut);margin:0 0 18px;padding:0;background:none;border-radius:0}
 #txa .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:4px;margin:0 0 16px}
@@ -136,7 +132,9 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
 #txa .msg.err{border-color:color-mix(in srgb,var(--acc2) 60%,transparent);color:var(--acc2)}#txa .msg.ok{border-color:color-mix(in srgb,var(--acc) 60%,transparent)}
 #txa .msg .lnk{margin-left:4px}
 #txa .big{font-size:40px;margin:0 0 8px}#txa .fine{font-size:12px;color:var(--mut);margin:16px 0 0;text-align:center}
-@media(max-width:520px){#txa{padding:0;align-items:stretch}#txa .bx{border-radius:0;border:0;min-height:100%;padding:calc(28px + env(safe-area-inset-top,0px)) 20px 24px;box-shadow:none;background:transparent}#txa .fan i{opacity:.1}}
+#txa .guest{display:block;width:100%;margin:14px 0 0;border:0;background:none;color:var(--mut);font-family:inherit;font-size:14px;cursor:pointer;padding:6px}#txa .guest b{color:var(--ink)}
+@media(max-width:520px){#txa{padding:0;align-items:flex-end}#txa .bx{border-radius:22px 22px 0 0;border-bottom:0;max-height:92vh;overflow:auto;padding:22px 20px calc(18px + env(safe-area-inset-bottom,0px))}#txa .bx:before{content:'';display:block;width:40px;height:4px;border-radius:2px;background:var(--line);margin:-10px auto 14px}}
+#txme.guest{background:var(--acc);border-color:var(--acc);color:var(--bg);font-weight:700}#txme.guest i{display:none}
 #txme{white-space:nowrap}#txme i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--acc,#4cc2ab);vertical-align:middle}
 #txme[data-s=saving] i{background:#e0b341}#txme[data-s=offline] i,#txme[data-s=error] i{background:#ff8a8a}
 #txmenu{position:fixed;z-index:9999;width:260px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 20px 50px rgba(0,0,0,.4);font-size:14px}
@@ -147,25 +145,27 @@ const ICON={google:'<svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H
  apple:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.1zM13.9 4.9c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>'};
 let view=LS('tradex_auth_view')==='up'?'up':'in',email=LS('tradex_last_email')||'',busyBtn=false,note=null;
 const ttl=s=>s[0].toUpperCase()+s.slice(1);
-function screen(){const up=view==='up',fan='<div class="fan" aria-hidden="true"><i></i><i></i><i></i><i></i></div>',head='<div class="txlogo">Tradéx</div><p class="txtag">Your card collection, on every device.</p>';
+function screen(){const up=view==='up',fan='',x=`<button type="button" class="x" id="txguest2" aria-label="Close and continue as guest">✕</button>`,head='<div class="txlogo">Tradéx</div><p class="txtag">Your card collection, on every device.</p>';
  const emailF=`<div class="fld"><label for="txe">Email</label><input id="txe" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required value="${esc(email)}"></div>`;
- if(view==='in'||view==='up'){const pv=(BK.providers||[]).filter(p=>ICON[p]).map(p=>`<button type="button" class="go2" data-oauth="${p}">${ICON[p]}Continue with ${ttl(p)}</button>`).join('');
-  return fan+`<form class="bx" id="txf" novalidate>${head}<div class="seg" role="tablist"><button type="button" role="tab" data-view="in" aria-selected="${!up}">Sign in</button><button type="button" role="tab" data-view="up" aria-selected="${up}">Create account</button></div>
-  ${pv?pv+'<div class="or">or use email</div>':''}${emailF}
+ if(view==='in'||view==='up'){const pv=['google','apple'].map(p=>`<button type="button" class="go2" data-oauth="${p}">${ICON[p]}Continue with ${ttl(p)}</button>`).join('');
+  return fan+`<form class="bx" id="txf" novalidate>${x}${head}<div class="seg" role="tablist"><button type="button" role="tab" data-view="in" aria-selected="${!up}">Sign in</button><button type="button" role="tab" data-view="up" aria-selected="${up}">Create account</button></div>
+  ${emailF}
   <div class="fld"><label for="txp">Password</label><input id="txp" type="password" autocomplete="${up?'new-password':'current-password'}" minlength="8" required><button type="button" class="eye" id="txeye" aria-label="Show password">Show</button></div>
   ${up?'<ul class="rules" id="txrules"><li data-r="len">At least 8 characters</li><li data-r="mix">A letter and a number</li></ul>':'<div class="txrow"><span></span><button type="button" class="lnk" data-view="reset">Forgot password?</button></div>'}
   <button class="go" type="submit" id="txgo">${up?'Create account':'Sign in'}</button>
+  <div class="or">or</div>${pv}
   ${up?'':'<button type="button" class="go2" id="txl">✉️ Email me a sign-in link</button>'}
   <div class="msg" id="txmsg" role="status" aria-live="polite"></div>
-  <p class="fine">${up?'Your cards are saved to your account and sync across your devices.':'Signing in keeps you signed in on this device until you sign out.'}</p></form>`}
- if(view==='reset')return fan+`<form class="bx" id="txf" novalidate>${head}<h2>Reset your password</h2><p class="sub">Enter your email and we’ll send you a link to choose a new password.</p>${emailF}
+  <button type="button" class="guest" id="txguest">Just looking? <b>Continue as guest →</b></button>
+  <p class="fine">${up?'Your cards are saved to your account and sync across your devices.':'Guests can look around. Sign in to save your cards to your account.'}</p></form>`}
+ if(view==='reset')return fan+`<form class="bx" id="txf" novalidate>${x}${head}<h2>Reset your password</h2><p class="sub">Enter your email and we’ll send you a link to choose a new password.</p>${emailF}
   <button class="go" type="submit" id="txgo">Send reset link</button><button type="button" class="go2" data-view="in">Back to sign in</button><div class="msg" id="txmsg" role="status" aria-live="polite"></div></form>`;
  if(view==='newpw')return fan+`<form class="bx" id="txf" novalidate>${head}<h2>Choose a new password</h2><p class="sub">You’ll stay signed in after you save it.</p>
   <div class="fld"><label for="txp">New password</label><input id="txp" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="eye" id="txeye" aria-label="Show password">Show</button></div>
   <ul class="rules" id="txrules"><li data-r="len">At least 8 characters</li><li data-r="mix">A letter and a number</li></ul>
   <button class="go" type="submit" id="txgo">Save new password</button><div class="msg" id="txmsg" role="status" aria-live="polite"></div></form>`;
  // 'sent': a link or confirmation email is on its way
- return fan+`<div class="bx">${head}<div class="big">📬</div><h2>Check your email</h2><p class="sub">${esc(note&&note.text||'')}</p>
+ return fan+`<div class="bx">${x}${head}<div class="big">📬</div><h2>Check your email</h2><p class="sub">${esc(note&&note.text||'')}</p>
   <p class="sub">It can take a minute. Check spam if you don’t see it.</p>
   ${note&&note.resend?`<button type="button" class="go2" id="txresend">Send it again</button>`:''}<button type="button" class="go2" data-view="in">Back to sign in</button><div class="msg" id="txmsg" role="status" aria-live="polite"></div></div>`}
 function gate(msg,err){let g=$('#txa');if(!g){g=document.createElement('div');g.id='txa';document.body.appendChild(g)}
@@ -207,10 +207,14 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button');i
  if(t.id==='txl'){email=$('#txe').value.trim();if(!emailOk(email)){say('Enter your email first, then tap the link button.',true);$('#txe').focus();return}
   LS('tradex_last_email',email);try{await BK.emailLink(email);note={text:`We sent a sign-in link to ${email}. Open it on this device to sign in, no password needed.`};go('sent')}catch(x){const[f,a]=friendly(x);say(f,true,a)}return}
  if(t.id==='txresend'){t.disabled=true;await resend();setTimeout(()=>{t.disabled=false},30000);return}
- if(t.dataset.oauth){try{await BK.oauth(t.dataset.oauth)}catch(x){const[f,a]=friendly(x);say(f,true,a)}return}
- if(t.id==='txme'){e.stopPropagation();menu();return}
+ if(t.dataset.oauth){const p=t.dataset.oauth;say('');
+  if(!(await BK.providers()).includes(p)){say(`${ttl(p)} sign-in isn’t switched on yet. Use your email for now.`,true);return}
+  say(`Finish signing in with ${ttl(p)} in the window that opened…`);
+  try{await BK.oauth(p);const u=await BK.session();if(u)signedIn(u);else say(`${ttl(p)} sign-in was closed before it finished.`,true)}catch(x){const[f,a]=friendly(x);say(f,true,a)}return}
+ if(t.id==='txguest'||t.id==='txguest2'){guest();return}
+ if(t.id==='txme'){e.stopPropagation();if(!user){view='in';gate();return}menu();return}
  if(t.id==='txout'){closeMenu();if(!await ask('Sign out of Tradéx on this device? Your cards stay saved in your account.',{ok:'Sign out',danger:true}))return;
-  await run(async()=>{if(SY&&SY.dirty)await push()}).catch(()=>{});await BK.signOut();['tradex','tradex_sync'].forEach(k=>LS(k,null));location.reload();return}
+  await run(async()=>{if(SY&&SY.dirty)await push()}).catch(()=>{});await BK.signOut();['tradex','tradex_sync','tradex_guest'].forEach(k=>LS(k,null));location.reload();return}
  if(t.id==='txsyncnow'){closeMenu();sync();return}
  if(t.id==='txbk'){closeMenu();const b=$('#bkb');if(b)b.click();return}});
 const SMSG={ok:'All changes are saved to your account.',saving:'Saving your changes…',offline:'You’re offline. Changes are kept on this device and sync when you’re back online.',error:'Couldn’t reach your account. Tradéx will keep retrying.'};
@@ -224,10 +228,19 @@ function status(s){state=s;const b=$('#txme');if(b){b.dataset.s=s;b.title={ok:'S
 function me(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';b.setAttribute('aria-haspopup','dialog');const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
  b.innerHTML='<i></i>'+esc((user.email||'Account').split('@')[0]);status(state||'ok')}
 let recovering=false;
+const isGuest=()=>LS('tradex_guest')==='1';
+function guest(){LS('tradex_guest','1');const g=$('#txa');if(g)g.remove();H.classList.remove('pend');guestBtn()}
+function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
+ b.className='guest';b.textContent='Sign in';b.setAttribute('aria-label','Sign in or create an account to save your cards')}
+// The Google/Apple popup lands back on this page; there it only finishes sign-in and closes.
+const POP=window.name==='tradex-auth'&&!!window.opener;
+addEventListener('message',e=>{if(e.origin===location.origin&&e.data&&e.data.tx==='auth')BK.session().then(u=>{if(u)signedIn(u)})});
 
 // ---------- start ----------
-async function signedIn(u){if(user&&user.id===u.id)return;user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering){const g=$('#txa');if(g)g.remove()}H.classList.remove('pend');me();
+async function signedIn(u){if(POP){try{window.opener.postMessage({tx:'auth'},location.origin)}catch(e){}window.close();return}
+ if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering){const g=$('#txa');if(g)g.remove()}H.classList.remove('pend');me();
  try{await adopt()}catch(e){console.warn('Tradéx sync:',e);status(navigator.onLine?'error':'offline')}}
 BK.ready().then(()=>{BK.onChange(signedIn,()=>{if(user)location.reload()},()=>{recovering=true;view='newpw';gate()});return BK.session()})
- .then(u=>{if(u)signedIn(u);else if(!user)gate()},e=>gate(e.message,true));
+ .then(u=>{if(u)signedIn(u);else if(POP){document.body.innerHTML='<p style="font:16px system-ui;padding:40px;text-align:center">Signing you in…</p>';H.classList.remove('pend')}
+  else if(!user){if(isGuest()){H.classList.remove('pend');guestBtn()}else gate()}},e=>gate(e.message,true));
 })();

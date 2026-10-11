@@ -8,9 +8,10 @@ let sb=null;const here=()=>location.origin+location.pathname,who=u=>u&&{id:u.id,
 const ok=async q=>{const{data,error}=await q;if(error)throw new Error(error.message||String(error));return data};
 const load=new Promise((res,rej)=>{if(window.supabase&&window.supabase.createClient)return res();const s=document.createElement('script');s.src=SDK;s.onload=res;s.onerror=()=>rej(new Error('Couldn’t load sign-in. Check your connection and reload.'));document.head.appendChild(s)})
  .then(()=>{sb=window.supabase.createClient(CFG.url,CFG.anonKey)});
-let uid=null;
+let uid=null,provs=null;
 window.TXBackend={
- providers:CFG.providers||[],
+ // Which one-tap providers are switched on in Supabase (Authentication → Providers), asked from Supabase itself.
+ providers(){return provs=provs||fetch(CFG.url+'/auth/v1/settings',{headers:{apikey:CFG.anonKey}}).then(r=>r.json()).then(j=>Object.keys(j.external||{}).filter(k=>j.external[k])).catch(()=>{provs=null;return CFG.providers||[]})},
  ready:()=>load,
  async session(){const{data}=await sb.auth.getSession();const u=who(data&&data.session&&data.session.user);uid=u&&u.id;return u},
  // recovery: someone opened a password reset link and needs to choose a new password.
@@ -18,7 +19,12 @@ window.TXBackend={
  async signUp(email,password){const d=await ok(sb.auth.signUp({email,password,options:{emailRedirectTo:here()}}));return{confirm:!d.session}},
  signIn:(email,password)=>ok(sb.auth.signInWithPassword({email,password})),
  emailLink:email=>ok(sb.auth.signInWithOtp({email,options:{emailRedirectTo:here(),shouldCreateUser:true}})),
- oauth:provider=>ok(sb.auth.signInWithOAuth({provider,options:{redirectTo:here()}})),
+ // Opens Google or Apple in a popup, like most sites. The popup comes back to this page, which finishes sign-in and closes.
+ // Resolves when the popup closes. If popups are blocked, the whole page goes to the provider instead.
+ async oauth(provider){const d=await ok(sb.auth.signInWithOAuth({provider,options:{redirectTo:here(),skipBrowserRedirect:true}}));
+  const w=500,h=640,y=Math.max(0,(screen.height-h)/2),x=Math.max(0,(screen.width-w)/2),pop=window.open(d.url,'tradex-auth',`width=${w},height=${h},left=${x},top=${y}`);
+  if(!pop){location.assign(d.url);return new Promise(()=>{})}
+  pop.focus();await new Promise(res=>{const t=setInterval(()=>{if(pop.closed){clearInterval(t);res()}},400)})},
  resetPassword:email=>ok(sb.auth.resetPasswordForEmail(email,{redirectTo:here()})),
  updatePassword:password=>ok(sb.auth.updateUser({password})),
  resendConfirm:email=>ok(sb.auth.resend({type:'signup',email,options:{emailRedirectTo:here()}})),
