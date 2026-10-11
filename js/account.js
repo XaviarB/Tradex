@@ -263,7 +263,7 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
  fl.innerHTML='<defs><linearGradient id="txfl" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8f9c97"/><stop offset=".05" stop-color="#f6fcfa"/><stop offset=".16" stop-color="#d3ddd9"/><stop offset=".6" stop-color="#a9b6b1"/><stop offset="1" stop-color="#7e8b87"/></linearGradient></defs><polygon fill="url(#txfl)"/><polyline fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2" stroke-linejoin="bevel"/>';
  const [gr,flap,rim]=[fl.querySelector('linearGradient'),fl.querySelector('polygon'),fl.querySelector('polyline')];
  // crease slants so the folded end comes over at a downward angle and ends just past the right edge, hanging below the strip
- const A=.13,nv=[Math.cos(A),Math.sin(A)],kEnd=.5*W/nv[0],kOut=W*nv[0]+(innerWidth-r.left-W+80)/(2*nv[0]),P2=800;
+ const A=.13,nv=[Math.cos(A),Math.sin(A)],kEnd=.5*W/nv[0],kOut=W*nv[0]+(innerWidth-r.left-W+80)/(2*nv[0]);
  const roll=e=>{const k=e*kEnd,f=half(shape,nv,k),back=half(shape,[-nv[0],-nv[1]],-k).map(([x,y])=>{const dd=nv[0]*x+nv[1]*y-k;return[x-2*dd*nv[0],y-2*dd*nv[1]]});
   front.style.clipPath=f.length>2?`polygon(${f.map(([x,y])=>x.toFixed(1)+'px '+y.toFixed(1)+'px').join(',')})`:'polygon(0 0,0 0,0 0)';
   const pt=back.map(([x,y])=>x.toFixed(1)+','+y.toFixed(1)).join(' ');flap.setAttribute('points',pt);rim.setAttribute('points',back.length?pt+' '+back[0].join(','):'');
@@ -280,17 +280,20 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   <path d="${d}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linejoin="bevel" stroke-dasharray="${len}" stroke-dashoffset="${len}"/>
   <ellipse rx="34" ry="16" fill="url(#txsp)" opacity=".9"/><circle r="3.2" fill="#fff"/></svg>`;
  wrap.insertBefore(lit,fl);const [glowP,lineP]=lit.querySelectorAll('path'),[halo,dot]=[lit.querySelector('ellipse'),lit.querySelector('circle')],t0=performance.now();
- (function step(now){const q=Math.min(1,(now-t0)/SW),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2,pt=lineP.getPointAtLength(e*len);
-  glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);roll(e);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
-  if(q<1)requestAnimationFrame(step);else{halo.animate([{opacity:.9},{opacity:0}],{duration:200,fill:'forwards'});dot.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
-   bx.appendChild(fray());front.appendChild(fray());lit.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
-   // keep pulling: the fold runs on through the right side until the whole strip has flipped over and slid off screen
-   const t1=performance.now();(function pull(now){const u=Math.min(1,(now-t1)/P2);roll(1+(kOut/kEnd-1)*u*u*(1.4-.4*u));if(u<1)requestAnimationFrame(pull)})(t1)}})(t0);
- const T=SW+P2*.55,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
+ // One continuous pull: it starts gently, settles into a steady pace while the light runs along the tear, then keeps
+ // accelerating through the right side without ever pausing, until the whole strip has flipped over and left the screen.
+ const s0=.25,g1=1-s0/2,ac=1.6,need=g1*(kOut/kEnd-1),xs=(-1+Math.sqrt(1+4*ac*need))/(2*ac),pullEnd=SW*(1+xs);
+ const gp=t=>{const v=t/SW;return v<s0?v*v/(2*s0):v<=1?v-s0/2:g1+(v-1)+ac*(v-1)*(v-1)};let lightOn=true;
+ (function step(now){const t=now-t0,k=Math.min(kOut,kEnd*gp(t)/g1);roll(k/kEnd);
+  if(lightOn){const tx=Math.min(W,2*k*nv[0]),pt=lineP.getPointAtLength(len*tx/W);glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-tx/W);
+   halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
+   if(tx>=W){lightOn=false;bx.appendChild(fray());front.appendChild(fray());lit.animate([{opacity:1},{opacity:0}],{duration:260,fill:'forwards'})}}
+  if(k<kOut)requestAnimationFrame(step)})(t0);
+ const T=SW+260,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
  // …and the opened pack shivers from the tear, lifts, and is tossed off the top left while the haze clears.
  const f=t=>t/tot;bx.animate([{transform:'none'},{transform:'rotate(.4deg)',offset:f(SW*.3)},{transform:'rotate(-.4deg)',offset:f(SW*.6)},{transform:'none',offset:f(SW*.9)},{transform:'none',offset:f(T)},
   {transform:'translateY(-22px) rotate(-2deg)',offset:f(T+200)},{transform:`translate(${-innerWidth*.7}px,${-innerHeight*1.1}px) rotate(-28deg)`}],{duration:tot,easing:E,fill:'forwards'});
- setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},tot+60)}
+ setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},Math.max(tot,pullEnd)+80)}
 function guest(rip){LS('tradex_guest','1');lift(rip);H.classList.remove('pend');guestBtn()}
 function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
  b.className='guest';b.textContent='Sign in';b.setAttribute('aria-label','Sign in or create an account to save your cards')}
