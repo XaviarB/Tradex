@@ -1,0 +1,25 @@
+/* Tradéx: Customize panel */
+#edb{font-weight:600}
+#edp{display:none;position:fixed;top:0;right:0;bottom:0;width:290px;z-index:99999;background:#171b1a;color:#e8eeeb;font:13px/1.4 system-ui,sans-serif;overflow:auto;padding:14px;border-left:1px solid #333}
+body.ed-on{padding-right:290px}body.ed-on #edp{display:block}
+#edp h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+#edp h4{margin:18px 0 6px;font-size:11px;letter-spacing:.08em;color:#7fe0c8;text-transform:uppercase}
+#edp label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0}
+#edp input,#edp select{background:#0d100f;color:#fff;border:1px solid #3a4440;border-radius:6px;padding:5px 7px;font:inherit}
+#edp input[type=text]{width:150px}#edp select{max-width:160px}
+#edp .sl{margin:8px 0 12px}
+#edp .sl>div{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+#edp .sl output{font-weight:800;font-size:13px;color:var(--acc)}
+#edp input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;margin:0;padding:0;border:0;background:transparent;cursor:pointer}
+#edp input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(var(--acc),var(--acc)) 0/var(--p,50%) 100% no-repeat,#3a4440}
+#edp input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:#3a4440}
+#edp input[type=range]::-moz-range-progress{height:6px;border-radius:6px;background:var(--acc)}
+#edp input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-6px;border-radius:50%;background:var(--acc);border:3px solid #e8eeeb;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+#edp input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--acc);border:3px solid #e8eeeb;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+#edp input[type=range]:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+#edp input[type=color]{padding:0;width:44px;height:28px;cursor:pointer}
+#edp button{background:#26302d;color:#fff;border:1px solid #3a4440;border-radius:6px;padding:6px 10px;font:inherit;cursor:pointer;margin:2px 2px 2px 0}
+#edp button.on{background:#0e6b5c;border-color:#4cc2ab}
+#edp small{color:#93a09b;display:block;margin-bottom:4px}
+#edp .row{display:flex;flex-wrap:wrap;gap:6px}
+@media(max-width:760px){#edp{top:auto;left:0;width:auto;height:50vh;border-left:0;border-top:1px solid #333}body.ed-on{padding-right:0;padding-bottom:50vh}}
