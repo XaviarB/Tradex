@@ -104,7 +104,11 @@ async function adopt(){SY=loadSY();if(SY&&SY.uid===user.id)return sync();
 
 // ---------- UI: sign-in screen and account menu ----------
 const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;visibility:visible;color:var(--ink);
- background:rgba(6,10,9,.32);animation:txin .25s ease-out}
+ background:rgba(6,10,9,.38);-webkit-backdrop-filter:blur(9px) saturate(1.15);backdrop-filter:blur(9px) saturate(1.15);animation:txin .35s ease-out;
+ transition:background .7s ease,backdrop-filter .7s ease,-webkit-backdrop-filter .7s ease}
+#txa.clear{background:rgba(6,10,9,0);-webkit-backdrop-filter:blur(0) saturate(1);backdrop-filter:blur(0) saturate(1);pointer-events:none}
+#txa.clear .bx{transition:transform .35s ease-in,opacity .3s ease-in;transform:translateY(16px) scale(.97);opacity:0}
+@media(prefers-reduced-motion:reduce){#txa,#txa.clear .bx{transition:none;animation:none}}
 @keyframes txin{from{opacity:0}}@keyframes txup{from{transform:translateY(40px);opacity:0}}
 #txa .x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--mut);cursor:pointer;font-size:16px;margin:0;padding:0}
 #txa .bx{position:relative;width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px 24px 20px;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:txup .3s ease-out}
@@ -169,7 +173,7 @@ function screen(){const up=view==='up',fan='',x=`<button type="button" class="x"
   <p class="sub">It can take a minute. Check spam if you don’t see it.</p>
   ${note&&note.resend?`<button type="button" class="go2" id="txresend">Send it again</button>`:''}<button type="button" class="go2" data-view="in">Back to sign in</button><div class="msg" id="txmsg" role="status" aria-live="polite"></div></div>`}
 function gate(msg,err){let g=$('#txa');if(!g){g=document.createElement('div');g.id='txa';document.body.appendChild(g)}
- g.innerHTML=screen();H.classList.remove('pend');if(msg)say(msg,err);
+ g.classList.remove('clear');g.innerHTML=screen();H.classList.remove('pend');if(msg)say(msg,err);
  const f=$('#txe')&&!$('#txe').value?$('#txe'):$('#txp')||$('#txe');if(f&&matchMedia('(pointer:fine)').matches)f.focus();rules()}
 function go(v){if($('#txe'))email=$('#txe').value.trim();view=v;if(v==='in'||v==='up')LS('tradex_auth_view',v);gate()}
 // Messages can carry one action, e.g. "Reset password" or "Resend email".
@@ -199,7 +203,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='txf')return;e.preventDe
   if(view==='up'){if((await BK.signUp(email,password)).confirm){note={text:`We sent a confirmation link to ${email}. Open it to finish creating your account.`,resend:true};go('sent')}}
   else if(view==='in')await BK.signIn(email,password);
   else if(view==='reset'){await BK.resetPassword(email);note={text:`We sent a password reset link to ${email}.`};go('sent')}
-  else if(view==='newpw'){await BK.updatePassword(password);const g=$('#txa');if(g)g.remove();recovering=false;if(user)status(state||'ok')}
+  else if(view==='newpw'){await BK.updatePassword(password);lift();recovering=false;if(user)status(state||'ok')}
  }catch(x){const[f,a]=friendly(x);say(f,true,a)}})});
 document.addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
  if(t.closest('#txa')&&t.dataset.view){go(t.dataset.view);return}
@@ -229,7 +233,8 @@ function me(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='t
  b.innerHTML='<i></i>'+esc((user.email||'Account').split('@')[0]);status(state||'ok')}
 let recovering=false;
 const isGuest=()=>LS('tradex_guest')==='1';
-function guest(){LS('tradex_guest','1');const g=$('#txa');if(g)g.remove();H.classList.remove('pend');guestBtn()}
+function lift(){const g=$('#txa');if(!g||g.classList.contains('clear'))return;g.classList.add('clear');setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},matchMedia('(prefers-reduced-motion:reduce)').matches?0:750)}
+function guest(){LS('tradex_guest','1');lift();H.classList.remove('pend');guestBtn()}
 function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
  b.className='guest';b.textContent='Sign in';b.setAttribute('aria-label','Sign in or create an account to save your cards')}
 // The Google/Apple popup lands back on this page; there it only finishes sign-in and closes.
@@ -238,7 +243,7 @@ addEventListener('message',e=>{if(e.origin===location.origin&&e.data&&e.data.tx=
 
 // ---------- start ----------
 async function signedIn(u){if(POP){try{window.opener.postMessage({tx:'auth'},location.origin)}catch(e){}window.close();return}
- if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering){const g=$('#txa');if(g)g.remove()}H.classList.remove('pend');me();
+ if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering)lift();H.classList.remove('pend');me();
  try{await adopt()}catch(e){console.warn('Tradéx sync:',e);status(navigator.onLine?'error':'offline')}}
 BK.ready().then(()=>{BK.onChange(signedIn,()=>{if(user)location.reload()},()=>{recovering=true;view='newpw';gate()});return BK.session()})
  .then(u=>{if(u)signedIn(u);else if(POP){document.body.innerHTML='<p style="font:16px system-ui;padding:40px;text-align:center">Signing you in…</p>';H.classList.remove('pend')}
