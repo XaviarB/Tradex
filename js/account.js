@@ -249,7 +249,7 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
   v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
  const at=x=>{for(let i=1;i<pts.length;i++)if(pts[i][0]>=x){const[a,b]=[pts[i-1],pts[i]];return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return pts[pts.length-1][1]};
- const wrap=document.createElement('div'),SW=980,W=r.width,PX=pts.map(([x,y])=>[x/100*W,y]);wrap.setAttribute('aria-hidden','true');
+ const wrap=document.createElement('div'),SW=850,W=r.width,PX=pts.map(([x,y])=>[x/100*W,y]);wrap.setAttribute('aria-hidden','true');
  Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,overflow:'visible',transformOrigin:`100% ${cut}px`});
  // The torn-off title strip stays one piece: the part not yet folded is the card itself, and the part folded over
  // is its mirror image across a slanted crease, drawn as the silver inside of the foil draping down over the right side.
