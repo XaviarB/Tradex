@@ -263,7 +263,7 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
  fl.innerHTML='<defs><linearGradient id="txfl" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8f9c97"/><stop offset=".05" stop-color="#f6fcfa"/><stop offset=".16" stop-color="#d3ddd9"/><stop offset=".6" stop-color="#a9b6b1"/><stop offset="1" stop-color="#7e8b87"/></linearGradient></defs><polygon fill="url(#txfl)"/><polyline fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2" stroke-linejoin="bevel"/>';
  const [gr,flap,rim]=[fl.querySelector('linearGradient'),fl.querySelector('polygon'),fl.querySelector('polyline')];
  // crease slants so the folded end comes over at a downward angle and ends just past the right edge, hanging below the strip
- const A=.13,nv=[Math.cos(A),Math.sin(A)],kEnd=.5*W/nv[0];
+ const A=.13,nv=[Math.cos(A),Math.sin(A)],kEnd=.5*W/nv[0],kOut=W*nv[0]+(innerWidth-r.left-W+80)/(2*nv[0]),P2=800;
  const roll=e=>{const k=e*kEnd,f=half(shape,nv,k),back=half(shape,[-nv[0],-nv[1]],-k).map(([x,y])=>{const dd=nv[0]*x+nv[1]*y-k;return[x-2*dd*nv[0],y-2*dd*nv[1]]});
   front.style.clipPath=f.length>2?`polygon(${f.map(([x,y])=>x.toFixed(1)+'px '+y.toFixed(1)+'px').join(',')})`:'polygon(0 0,0 0,0 0)';
   const pt=back.map(([x,y])=>x.toFixed(1)+','+y.toFixed(1)).join(' ');flap.setAttribute('points',pt);rim.setAttribute('points',back.length?pt+' '+back[0].join(','):'');
@@ -283,11 +283,10 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
  (function step(now){const q=Math.min(1,(now-t0)/SW),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2,pt=lineP.getPointAtLength(e*len);
   glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);roll(e);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
   if(q<1)requestAnimationFrame(step);else{halo.animate([{opacity:.9},{opacity:0}],{duration:200,fill:'forwards'});dot.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
-   bx.appendChild(fray());front.appendChild(fray());lit.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:'forwards'})}})(t0);
- const T=SW+380,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
- // Once the strip has folded all the way across, it is flung to the top right…
- wrap.animate([{transform:'none',offset:0},{transform:'none',offset:T/(T+520)},{transform:'translate(30px,-30px) rotate(-8deg)',offset:(T+120)/(T+520)},
-  {transform:`translate(${innerWidth}px,${-innerHeight*.6}px) rotate(35deg)`}],{duration:T+520,easing:'ease-in',fill:'forwards'});
+   bx.appendChild(fray());front.appendChild(fray());lit.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
+   // keep pulling: the fold runs on through the right side until the whole strip has flipped over and slid off screen
+   const t1=performance.now();(function pull(now){const u=Math.min(1,(now-t1)/P2);roll(1+(kOut/kEnd-1)*u*u*(1.4-.4*u));if(u<1)requestAnimationFrame(pull)})(t1)}})(t0);
+ const T=SW+P2*.55,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
  // …and the opened pack shivers from the tear, lifts, and is tossed off the top left while the haze clears.
  const f=t=>t/tot;bx.animate([{transform:'none'},{transform:'rotate(.4deg)',offset:f(SW*.3)},{transform:'rotate(-.4deg)',offset:f(SW*.6)},{transform:'none',offset:f(SW*.9)},{transform:'none',offset:f(T)},
   {transform:'translateY(-22px) rotate(-2deg)',offset:f(T+200)},{transform:`translate(${-innerWidth*.7}px,${-innerHeight*1.1}px) rotate(-28deg)`}],{duration:tot,easing:E,fill:'forwards'});
