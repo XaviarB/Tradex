@@ -107,7 +107,7 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
  background:rgba(6,10,9,.38);-webkit-backdrop-filter:blur(9px) saturate(1.15);backdrop-filter:blur(9px) saturate(1.15);animation:txin .35s ease-out;
  transition:background .7s ease,backdrop-filter .7s ease,-webkit-backdrop-filter .7s ease}
 #txa.clear{background:rgba(6,10,9,0);-webkit-backdrop-filter:blur(0) saturate(1);backdrop-filter:blur(0) saturate(1);pointer-events:none}
-#txa.rip{transition-duration:1.1s;overflow:hidden}#txa.rip .bx{pointer-events:none}
+#txa.rip{transition-duration:1.2s;transition-delay:.25s;overflow:hidden}#txa.rip .bx{pointer-events:none}
 #txa.clear:not(.rip) .bx{transition:transform .35s ease-in,opacity .3s ease-in;transform:translateY(16px) scale(.97);opacity:0}
 @media(prefers-reduced-motion:reduce){#txa,#txa.clear .bx{transition:none;animation:none}}
 @keyframes txin{from{opacity:0}}@keyframes txup{from{transform:translateY(40px);opacity:0}}
@@ -245,20 +245,36 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
  let y=cut+(R()-.5)*6,dy=(R()-.5)*1.2;for(let i=0;i<=n;i++){dy=Math.max(-1.6,Math.min(1.6,dy*.8+(R()-.5)*1.1));y=Math.max(cut-9,Math.min(cut+9,y+dy));
   pts.push([i/n*100,+(y+(R()-.5)*1.6+(R()<.08?(R()-.4)*7:0)).toFixed(1)])}
  const edge=pts.map(([x,y])=>`${x}% ${y}px`),top=`polygon(0 0,100% 0,${edge.slice().reverse().join(',')})`,body=`polygon(${edge.join(',')},100% 100%,0 100%)`;
- const strip=bx.cloneNode(true);strip.removeAttribute('id');strip.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));strip.setAttribute('aria-hidden','true');
- Object.assign(strip.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',clipPath:top,transformOrigin:'0 '+cut+'px',zIndex:1});
  const fray=()=>{const v=document.createElementNS('http://www.w3.org/2000/svg','svg');v.setAttribute('viewBox',`0 0 100 ${cut+12}`);v.setAttribute('preserveAspectRatio','none');
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
   v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
- g.appendChild(strip);strip.appendChild(fray());bx.appendChild(fray());strip.scrollTop=bx.scrollTop;bx.style.clipPath=body;bx.style.animation='none';
- const E='cubic-bezier(.5,0,.75,0)';
- // 1) the strip peels up from the left like a foil tear, 2) it is flung away to the top right
- strip.animate([{transform:'none'},{transform:'translate(6px,-10px) rotate(-5deg)',offset:.35},{transform:'translate(40px,-34px) rotate(-12deg)',offset:.55},
-  {transform:`translate(${innerWidth}px,${-innerHeight*.5}px) rotate(38deg)`}],{duration:800,easing:'ease-in',fill:'forwards'});
- // 3) the opened pack wobbles from the tear, lifts, and is tossed off the top left
- bx.animate([{transform:'none'},{transform:'rotate(.8deg)',offset:.1},{transform:'rotate(-.6deg)',offset:.2},{transform:'none',offset:.3},
-  {transform:'translateY(-22px) rotate(-2deg)',offset:.48},{transform:`translate(${-innerWidth*.7}px,${-innerHeight*1.1}px) rotate(-28deg)`}],{duration:1150,easing:E,fill:'forwards'});
- setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},1200)}
+ const at=x=>{for(let i=1;i<pts.length;i++)if(pts[i][0]>=x){const[a,b]=[pts[i-1],pts[i]];return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return pts[pts.length-1][1]};
+ // The torn-off strip is cut into narrow columns so it can curl up column by column behind the light sweep.
+ const wrap=document.createElement('div'),N=12,SW=560;wrap.setAttribute('aria-hidden','true');
+ Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,perspective:'700px',perspectiveOrigin:`50% ${cut}px`,transformOrigin:`0 ${cut}px`});
+ for(let k=0;k<N;k++){const x0=k/N*100,x1=(k+1)/N*100,inner=pts.filter(([x])=>x>x0&&x<x1).reverse().map(([x,y])=>`${x}% ${y}px`);
+  const sl=bx.cloneNode(true);sl.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));sl.appendChild(fray());
+  Object.assign(sl.style,{position:'absolute',left:0,top:0,width:r.width+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',boxSizing:'border-box',
+   clipPath:`polygon(${x0-.15}% 0,${x1+.15}% 0,${x1+.15}% ${at(x1)}px,${inner.join(',')}${inner.length?',':''}${x0-.15}% ${at(x0)}px)`,transformOrigin:`${(x0+x1)/2}% ${cut}px`});
+  wrap.appendChild(sl);sl.scrollTop=bx.scrollTop;
+  const d=60+k/N*SW*.75;
+  sl.animate([{transform:'none',filter:'brightness(1)'},{transform:'rotateX(-18deg)',filter:'brightness(1.45)',offset:.45},{transform:'translateY(-5px) rotateX(-48deg)',filter:'brightness(1.15)'}],
+   {duration:260,delay:d,easing:'ease-out',fill:'both'})}
+ g.appendChild(wrap);bx.appendChild(fray());bx.style.clipPath=`polygon(${edge.join(',')},100% 100%,0 100%)`;bx.style.animation='none';
+ // A band of light sweeps left to right across the whole card, like foil catching the light as the pack is torn.
+ const glow=document.createElement('div');glow.setAttribute('aria-hidden','true');
+ Object.assign(glow.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:getComputedStyle(bx).borderRadius,overflow:'hidden',pointerEvents:'none',zIndex:2});
+ glow.innerHTML='<i style="position:absolute;top:-20%;bottom:-20%;left:0;width:45%;background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.05) 25%,rgba(255,255,255,.42) 50%,rgba(220,255,240,.12) 70%,transparent 100%);mix-blend-mode:screen;transform:translateX(-110%) skewX(-12deg)"></i>';
+ g.appendChild(glow);glow.firstChild.animate([{transform:'translateX(-110%) skewX(-12deg)'},{transform:`translateX(${r.width*1.05}px) skewX(-12deg)`}],{duration:SW,easing:'cubic-bezier(.4,.1,.6,.9)',fill:'forwards'})
+  .onfinish=()=>glow.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'});
+ const T=SW+140,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
+ // Once the light has passed, the curled strip is flung to the top right…
+ wrap.animate([{transform:'none',offset:0},{transform:'none',offset:T/(T+520)},{transform:'translate(30px,-30px) rotate(-8deg)',offset:(T+120)/(T+520)},
+  {transform:`translate(${innerWidth}px,${-innerHeight*.6}px) rotate(35deg)`}],{duration:T+520,easing:'ease-in',fill:'forwards'});
+ // …and the opened pack shivers from the tear, lifts, and is tossed off the top left while the haze clears.
+ const f=t=>t/tot;bx.animate([{transform:'none'},{transform:'rotate(.6deg)',offset:f(140)},{transform:'rotate(-.5deg)',offset:f(280)},{transform:'none',offset:f(420)},{transform:'none',offset:f(T)},
+  {transform:'translateY(-22px) rotate(-2deg)',offset:f(T+200)},{transform:`translate(${-innerWidth*.7}px,${-innerHeight*1.1}px) rotate(-28deg)`}],{duration:tot,easing:E,fill:'forwards'});
+ setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},tot+60)}
 function guest(rip){LS('tradex_guest','1');lift(rip);H.classList.remove('pend');guestBtn()}
 function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
  b.className='guest';b.textContent='Sign in';b.setAttribute('aria-label','Sign in or create an account to save your cards')}
