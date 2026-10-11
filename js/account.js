@@ -249,21 +249,28 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
   v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
  const at=x=>{for(let i=1;i<pts.length;i++)if(pts[i][0]>=x){const[a,b]=[pts[i-1],pts[i]];return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return pts[pts.length-1][1]};
- // The torn-off strip is cut into narrow columns so it can fold up column by column behind the light.
- const wrap=document.createElement('div'),N=24,SW=1150;wrap.setAttribute('aria-hidden','true');
- Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,perspective:'800px',perspectiveOrigin:`50% ${cut}px`,transformOrigin:`0 ${cut}px`});
- const slices=[];
- for(let k=0;k<N;k++){const x0=k/N*100,x1=(k+1)/N*100,inner=pts.filter(([x])=>x>x0&&x<x1).reverse().map(([x,y])=>`${x}% ${y}px`);
+  const wrap=document.createElement('div'),N=44,SW=1300,W=r.width,CR=Math.max(12,cut*.32);wrap.setAttribute('aria-hidden','true');
+ Object.assign(wrap.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:r.height+'px',pointerEvents:'none',zIndex:1,perspective:'2600px',perspectiveOrigin:`50% ${cut}px`,transformStyle:'preserve-3d',transformOrigin:`100% ${cut}px`});
+ // The torn-off title strip is cut into narrow columns; each has a front (the card) and a back showing
+ // the silver inside of the foil, so the strip can roll over itself to the right like a page being turned.
+ const cols=[];
+ for(let k=0;k<N;k++){const x0=k/N*W,x1=(k+1)/N*W,xc=(x0+x1)/2,o=.8,poly=[[x0-o,0],[x1+o,0],[x1+o,at(x1/W*100)],...pts.map(([x,y])=>[x/100*W,y]).filter(([x])=>x>x0&&x<x1).reverse(),[x0-o,at(x0/W*100)]];
   const sl=bx.cloneNode(true);sl.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
-  Object.assign(sl.style,{position:'absolute',left:0,top:0,width:r.width+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',boxSizing:'border-box',
-   clipPath:`polygon(${x0-.15}% 0,${x1+.15}% 0,${x1+.15}% ${at(x1)}px,${inner.join(',')}${inner.length?',':''}${x0-.15}% ${at(x0)}px)`,transformOrigin:`${(x0+x1)/2}% ${at((x0+x1)/2)}px`});
-  wrap.appendChild(sl);sl.scrollTop=bx.scrollTop;slices.push(sl);
-  // each column folds up off the tear line just after the light has passed under it
-  sl.animate([{transform:'none',filter:'brightness(1)'},{transform:'translateY(-2px) rotateX(-35deg)',filter:'brightness(1.5)',offset:.4},{transform:'translateY(-6px) rotateX(-70deg)',filter:'brightness(1.1)'}],
-   {duration:560,delay:x1/100*SW-60,easing:'ease-out',fill:'both'})}
+  Object.assign(sl.style,{position:'absolute',left:0,top:0,width:W+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',boxSizing:'border-box',backfaceVisibility:'hidden',
+   clipPath:`polygon(${poly.map(([x,y])=>x+'px '+y+'px').join(',')})`,transformOrigin:`${xc}px 0`});
+  const bk=document.createElement('div');Object.assign(bk.style,{position:'absolute',left:0,top:0,width:W+'px',height:r.height+'px',backfaceVisibility:'hidden',
+   background:`linear-gradient(180deg,#dfe7e4,#aebbb6 ${cut*.55}px,#8d9a95 ${cut}px)`,borderRadius:getComputedStyle(bx).borderRadius,
+   clipPath:`polygon(${poly.map(([x,y])=>(2*xc-x)+'px '+y+'px').join(',')})`,transformOrigin:`${xc}px 0`});
+  wrap.append(sl,bk);sl.scrollTop=bx.scrollTop;cols.push({sl,bk,xc})}
+ const roll=tip=>{const c=(tip+Math.PI*CR)/2;
+  for(const {sl,bk,xc} of cols){const d=c-xc;let x=xc,z=0,th=0;
+   if(d>0&&d<Math.PI*CR){th=d/CR;x=c-CR*Math.sin(th);z=CR*(1-Math.cos(th))}else if(d>=Math.PI*CR){th=Math.PI;x=c+(d-Math.PI*CR);z=2*CR}
+   const tr=`translate3d(${(x-xc).toFixed(2)}px,0,${z.toFixed(2)}px) rotateY(${th.toFixed(4)}rad)`,lift=Math.sin(th);
+   sl.style.transform=tr;bk.style.transform=tr+' rotateY(180deg)';sl.style.filter=`brightness(${(1+1.6*lift).toFixed(3)})`;bk.style.filter=`brightness(${(.78+.4*lift).toFixed(3)})`}};
+ const slices=cols.map(c=>c.sl);
  g.appendChild(wrap);bx.style.clipPath=`polygon(${edge.join(',')},100% 100%,0 100%)`;bx.style.animation='none';
- // A spark of light runs slowly along the tear line, lighting the torn edge as it goes.
- const W=r.width,H=cut+24,P=pts.map(([x,y])=>[x/100*W,y]),d='M'+P.map(([x,y])=>x.toFixed(1)+' '+y).join(' L'),len=P.reduce((a,p,i)=>i?a+Math.hypot(p[0]-P[i-1][0],p[1]-P[i-1][1]):0,0);
+ // A spark of light runs slowly along the tear line, lighting the torn edge; the strip's left end is pulled along with it.
+ const H=cut+24,P=pts.map(([x,y])=>[x/100*W,y]),d='M'+P.map(([x,y])=>x.toFixed(1)+' '+y).join(' L'),len=P.reduce((a,p,i)=>i?a+Math.hypot(p[0]-P[i-1][0],p[1]-P[i-1][1]):0,0);
  const lit=document.createElement('div');lit.setAttribute('aria-hidden','true');
  Object.assign(lit.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:H+'px',pointerEvents:'none',zIndex:2,overflow:'visible'});
  lit.innerHTML=`<svg width="${W}" height="${H}" style="overflow:visible;display:block"><defs><radialGradient id="txsp"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="#e9fff6" stop-opacity=".9"/><stop offset="1" stop-color="#7fe0c0" stop-opacity="0"/></radialGradient>
@@ -273,7 +280,7 @@ function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return
   <ellipse rx="34" ry="16" fill="url(#txsp)" opacity=".9"/><circle r="3.2" fill="#fff"/></svg>`;
  g.appendChild(lit);const [glowP,lineP]=lit.querySelectorAll('path'),[halo,dot]=[lit.querySelector('ellipse'),lit.querySelector('circle')],t0=performance.now();
  (function step(now){const q=Math.min(1,(now-t0)/SW),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2,pt=lineP.getPointAtLength(e*len);
-  glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
+  glowP.style.strokeDashoffset=lineP.style.strokeDashoffset=len*(1-e);roll(pt.x);halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
   if(q<1)requestAnimationFrame(step);else{halo.animate([{opacity:.9},{opacity:0}],{duration:200,fill:'forwards'});dot.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'});
    bx.appendChild(fray());slices.forEach(sl=>sl.appendChild(fray()));lit.animate([{opacity:1},{opacity:0}],{duration:260,delay:120,fill:'forwards'})}})(t0);
  const T=SW+380,E='cubic-bezier(.5,0,.75,0)',tot=T+650;
