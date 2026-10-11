@@ -107,7 +107,8 @@ const css=`#txa{position:fixed;inset:0;z-index:100000;display:flex;align-items:c
  background:rgba(6,10,9,.38);-webkit-backdrop-filter:blur(9px) saturate(1.15);backdrop-filter:blur(9px) saturate(1.15);animation:txin .35s ease-out;
  transition:background .7s ease,backdrop-filter .7s ease,-webkit-backdrop-filter .7s ease}
 #txa.clear{background:rgba(6,10,9,0);-webkit-backdrop-filter:blur(0) saturate(1);backdrop-filter:blur(0) saturate(1);pointer-events:none}
-#txa.clear .bx{transition:transform .35s ease-in,opacity .3s ease-in;transform:translateY(16px) scale(.97);opacity:0}
+#txa.rip{transition-duration:1.1s;overflow:hidden}#txa.rip .bx{pointer-events:none}
+#txa.clear:not(.rip) .bx{transition:transform .35s ease-in,opacity .3s ease-in;transform:translateY(16px) scale(.97);opacity:0}
 @media(prefers-reduced-motion:reduce){#txa,#txa.clear .bx{transition:none;animation:none}}
 @keyframes txin{from{opacity:0}}@keyframes txup{from{transform:translateY(40px);opacity:0}}
 #txa .x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--mut);cursor:pointer;font-size:16px;margin:0;padding:0}
@@ -173,7 +174,7 @@ function screen(){const up=view==='up',fan='',x=`<button type="button" class="x"
   <p class="sub">It can take a minute. Check spam if you don’t see it.</p>
   ${note&&note.resend?`<button type="button" class="go2" id="txresend">Send it again</button>`:''}<button type="button" class="go2" data-view="in">Back to sign in</button><div class="msg" id="txmsg" role="status" aria-live="polite"></div></div>`}
 function gate(msg,err){let g=$('#txa');if(!g){g=document.createElement('div');g.id='txa';document.body.appendChild(g)}
- g.classList.remove('clear');g.innerHTML=screen();H.classList.remove('pend');if(msg)say(msg,err);
+ g.classList.remove('clear','rip');g.innerHTML=screen();H.classList.remove('pend');if(msg)say(msg,err);
  const f=$('#txe')&&!$('#txe').value?$('#txe'):$('#txp')||$('#txe');if(f&&matchMedia('(pointer:fine)').matches)f.focus();rules()}
 function go(v){if($('#txe'))email=$('#txe').value.trim();view=v;if(v==='in'||v==='up')LS('tradex_auth_view',v);gate()}
 // Messages can carry one action, e.g. "Reset password" or "Resend email".
@@ -203,7 +204,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='txf')return;e.preventDe
   if(view==='up'){if((await BK.signUp(email,password)).confirm){note={text:`We sent a confirmation link to ${email}. Open it to finish creating your account.`,resend:true};go('sent')}}
   else if(view==='in')await BK.signIn(email,password);
   else if(view==='reset'){await BK.resetPassword(email);note={text:`We sent a password reset link to ${email}.`};go('sent')}
-  else if(view==='newpw'){await BK.updatePassword(password);lift();recovering=false;if(user)status(state||'ok')}
+  else if(view==='newpw'){await BK.updatePassword(password);lift(true);recovering=false;if(user)status(state||'ok')}
  }catch(x){const[f,a]=friendly(x);say(f,true,a)}})});
 document.addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
  if(t.closest('#txa')&&t.dataset.view){go(t.dataset.view);return}
@@ -215,7 +216,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button');i
   if(!(await BK.providers()).includes(p)){say(`${ttl(p)} sign-in isn’t switched on yet. Use your email for now.`,true);return}
   say(`Finish signing in with ${ttl(p)} in the window that opened…`);
   try{await BK.oauth(p);const u=await BK.session();if(u)signedIn(u);else say(`${ttl(p)} sign-in was closed before it finished.`,true)}catch(x){const[f,a]=friendly(x);say(f,true,a)}return}
- if(t.id==='txguest'||t.id==='txguest2'){guest();return}
+ if(t.id==='txguest'||t.id==='txguest2'){guest(t.id==='txguest');return}
  if(t.id==='txme'){e.stopPropagation();if(!user){view='in';gate();return}menu();return}
  if(t.id==='txout'){closeMenu();if(!await ask('Sign out of Tradéx on this device? Your cards stay saved in your account.',{ok:'Sign out',danger:true}))return;
   await run(async()=>{if(SY&&SY.dirty)await push()}).catch(()=>{});await BK.signOut();['tradex','tradex_sync','tradex_guest'].forEach(k=>LS(k,null));location.reload();return}
@@ -233,8 +234,30 @@ function me(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='t
  b.innerHTML='<i></i>'+esc((user.email||'Account').split('@')[0]);status(state||'ok')}
 let recovering=false;
 const isGuest=()=>LS('tradex_guest')==='1';
-function lift(){const g=$('#txa');if(!g||g.classList.contains('clear'))return;g.classList.add('clear');setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},matchMedia('(prefers-reduced-motion:reduce)').matches?0:750)}
-function guest(){LS('tradex_guest','1');lift();H.classList.remove('pend');guestBtn()}
+// Leaving the sign-in screen: the haze clears, and with rip=true the card is torn open like a booster pack
+// (top strip rips off and flies away, then the rest is lifted and tossed off screen).
+function lift(rip){const g=$('#txa');if(!g||g.classList.contains('clear'))return;
+ const bx=g.querySelector('.bx'),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ if(!rip||still||!bx||!bx.animate){g.classList.add('clear');setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},still?0:750);return}
+ g.classList.add('clear','rip');
+ const r=bx.getBoundingClientRect(),cut=Math.min(64,r.height*.12),n=14,pts=[];
+ for(let i=0;i<=n;i++)pts.push([i/n*100,cut+(i%2?-1:1)*(3+Math.random()*4)]);
+ const edge=pts.map(([x,y])=>`${x}% ${y}px`),top=`polygon(0 0,100% 0,${edge.slice().reverse().join(',')})`,body=`polygon(${edge.join(',')},100% 100%,0 100%)`;
+ const strip=bx.cloneNode(true);strip.removeAttribute('id');strip.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));strip.setAttribute('aria-hidden','true');
+ Object.assign(strip.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:0,maxHeight:'none',animation:'none',clipPath:top,transformOrigin:'0 '+cut+'px',zIndex:1});
+ const fray=()=>{const v=document.createElementNS('http://www.w3.org/2000/svg','svg');v.setAttribute('viewBox',`0 0 100 ${cut+12}`);v.setAttribute('preserveAspectRatio','none');
+  v.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${cut+12}px;pointer-events:none;overflow:visible`;
+  v.innerHTML=`<polyline points="${pts.map(([x,y])=>x+','+y).join(' ')}" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="bevel"/>`;return v};
+ g.appendChild(strip);strip.appendChild(fray());bx.appendChild(fray());strip.scrollTop=bx.scrollTop;bx.style.clipPath=body;bx.style.animation='none';
+ const E='cubic-bezier(.5,0,.75,0)';
+ // 1) the strip peels up from the left like a foil tear, 2) it is flung away to the top right
+ strip.animate([{transform:'none'},{transform:'translate(6px,-10px) rotate(-5deg)',offset:.35},{transform:'translate(40px,-34px) rotate(-12deg)',offset:.55},
+  {transform:`translate(${innerWidth}px,${-innerHeight*.5}px) rotate(38deg)`}],{duration:800,easing:'ease-in',fill:'forwards'});
+ // 3) the opened pack wobbles from the tear, lifts, and is tossed off the bottom left
+ bx.animate([{transform:'none'},{transform:'rotate(.8deg)',offset:.1},{transform:'rotate(-.6deg)',offset:.2},{transform:'none',offset:.3},
+  {transform:'translateY(-22px) rotate(-2deg)',offset:.48},{transform:`translate(${-innerWidth*.45}px,${innerHeight}px) rotate(-26deg)`}],{duration:1150,easing:E,fill:'forwards'});
+ setTimeout(()=>{if(g.classList.contains('clear'))g.remove()},1200)}
+function guest(rip){LS('tradex_guest','1');lift(rip);H.classList.remove('pend');guestBtn()}
 function guestBtn(){let b=$('#txme');if(!b){b=document.createElement('button');b.id='txme';const imp=$('#impb');imp.parentElement.insertBefore(b,imp)}
  b.className='guest';b.textContent='Sign in';b.setAttribute('aria-label','Sign in or create an account to save your cards')}
 // The Google/Apple popup lands back on this page; there it only finishes sign-in and closes.
@@ -243,7 +266,7 @@ addEventListener('message',e=>{if(e.origin===location.origin&&e.data&&e.data.tx=
 
 // ---------- start ----------
 async function signedIn(u){if(POP){try{window.opener.postMessage({tx:'auth'},location.origin)}catch(e){}window.close();return}
- if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering)lift();H.classList.remove('pend');me();
+ if(user&&user.id===u.id)return;LS('tradex_guest',null);user=u;if(u.email)LS('tradex_last_email',u.email);LS('tradex_auth_view','in');if(!recovering)lift(true);H.classList.remove('pend');me();
  try{await adopt()}catch(e){console.warn('Tradéx sync:',e);status(navigator.onLine?'error':'offline')}}
 BK.ready().then(()=>{BK.onChange(signedIn,()=>{if(user)location.reload()},()=>{recovering=true;view='newpw';gate()});return BK.session()})
  .then(u=>{if(u)signedIn(u);else if(POP){document.body.innerHTML='<p style="font:16px system-ui;padding:40px;text-align:center">Signing you in…</p>';H.classList.remove('pend')}
