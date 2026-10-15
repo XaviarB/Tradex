@@ -161,7 +161,7 @@ let view=LS('tradex_auth_view')==='up'?'up':'in',email=LS('tradex_last_email')||
 const ttl=s=>s[0].toUpperCase()+s.slice(1);
 function screen(){const up=view==='up',fan='',x=`<button type="button" class="x" id="txguest2" aria-label="Close and continue as guest">✕</button>`,head='<div class="txlogo">Tradéx</div><p class="txtag">Your card collection, on every device.</p>';
  const emailF=`<div class="fld"><label for="txe">Email</label><input id="txe" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required value="${esc(email)}"></div>`;
- if(view==='in'||view==='up'){const pv='<div class="oauth">'+['google','apple'].map(p=>`<button type="button" class="circ" data-oauth="${p}" aria-label="Continue with ${ttl(p)}" title="Continue with ${ttl(p)}">${ICON[p]}</button>`).join('')+'</div>';
+ if(view==='in'||view==='up'){const pv='<div class="oauth">'+['google'].map(p=>`<button type="button" class="circ" data-oauth="${p}" aria-label="Continue with ${ttl(p)}" title="Continue with ${ttl(p)}">${ICON[p]}</button>`).join('')+'</div>';
   return fan+`<form class="bx" id="txf" novalidate>${x}${head}<div class="seg" role="tablist"><button type="button" role="tab" data-view="in" aria-selected="${!up}">Sign in</button><button type="button" role="tab" data-view="up" aria-selected="${up}">Create account</button></div>
   ${emailF}
   <div class="fld"><label for="txp">Password</label><input id="txp" type="password" autocomplete="${up?'new-password':'current-password'}" minlength="8" required><button type="button" class="eye" id="txeye" aria-label="Show password">Show</button></div>
