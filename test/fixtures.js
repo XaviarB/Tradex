@@ -18,7 +18,7 @@ module.exports = {
   },
   products: {
     604: [
-      prod(42346, 3, 604, 'Alakazam', { Number: '001/102', Rarity: 'Holo Rare', 'Card Type': 'Psychic', HP: '80', Stage: 'Stage 2', CardText: '<strong>Pokémon Power: Damage Swap</strong><br>As often as you like during your turn, you may move 1 damage counter.' }),
+      prod(42346, 3, 604, 'Alakazam', { Number: '001/102', Rarity: 'Holo Rare', 'Card Type': 'Psychic', HP: '80', Stage: 'Stage 2', CardText: '<strong>Pokémon Power: Damage Swap</strong><br>As often as you like during your turn, you may move 1 damage counter.', 'Attack 1': '[PPP] Confuse Ray (30)<br>Flip a coin. If heads, the Defending Pokémon is now Confused.' }),
       prod(42382, 3, 604, 'Charizard', { Number: '004/102', Rarity: 'Holo Rare', 'Card Type': 'Fire', HP: '120', Stage: 'Stage 2', 'Attack 1': '[4] Fire Spin (100)' }),
       prod(42348, 3, 604, 'Chansey', { Number: '003/102', Rarity: 'Holo Rare', 'Card Type': 'Colorless', HP: '120' }),
       prod(42400, 3, 604, 'Base Set Booster Box', null),

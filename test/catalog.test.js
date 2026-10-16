@@ -126,6 +126,33 @@ test('enrich links typed-in cards to the right printing and adds details', async
   assert.equal(none, null);
 });
 
+test('every ability and attack reaches the card, even when only TCGplayer knows the card', async () => {
+  fresh();
+  // Alakazam is not in the Pokémon TCG API test data, so its text comes from TCGplayer alone.
+  const [k] = await catalog().enrich([{ game: 'Pokémon', name: 'Alakazam', set: 'Base Set', num: '1/102' }], { withDetails: true });
+  assert.deepEqual(k.moves.map(m => [m.kind, m.name]), [['power', 'Damage Swap'], ['attack', 'Confuse Ray']]);
+  assert.deepEqual(k.moves[1].cost, ['Psychic', 'Psychic', 'Psychic']);
+  assert.equal(k.moves[1].damage, '30');
+  assert.match(k.moves[1].text, /Confused/);
+  // Charizard: the Pokémon TCG API lists its Pokémon Power and attack, so its list is used.
+  const [z] = await catalog().enrich([{ game: 'Pokémon', name: 'Charizard', tcg: 42382, sub: 'Holofoil' }], { withDetails: true });
+  assert.deepEqual(z.moves.map(m => m.name), ['Energy Burn', 'Fire Spin']);
+});
+
+test('details are not cached when a source failed, so the next look tries again', async () => {
+  fresh();
+  up.tables.card_details.splice(0);
+  const base = process.env.POKEMONTCG_BASE;
+  process.env.POKEMONTCG_BASE = 'http://127.0.0.1:9/down';
+  const [a] = await catalog().enrich([{ game: 'Pokémon', name: 'Charizard', tcg: 42382, sub: 'Holofoil' }], { withDetails: true });
+  process.env.POKEMONTCG_BASE = base;
+  assert.deepEqual(a.moves.map(m => m.name), ['Fire Spin'], 'TCGplayer’s own list while the Pokémon TCG API is down');
+  assert.equal(up.tables.card_details.length, 0);
+  fresh();
+  const [b] = await catalog().enrich([{ game: 'Pokémon', name: 'Charizard', tcg: 42382, sub: 'Holofoil' }], { withDetails: true });
+  assert.deepEqual(b.moves.map(m => m.name), ['Energy Burn', 'Fire Spin']);
+});
+
 test('latest prices and history for many cards at once', async () => {
   fresh();
   const items = [{ tcg: 42382, sub: 'Holofoil' }, { tcg: 279860, sub: 'Etched Foil' }, { tcg: 'x' }];
