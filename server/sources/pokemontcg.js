@@ -12,9 +12,9 @@ function norm(c) {
   for (const k in tp) prices[SUB[k] || k] = { market: tp[k].market ?? null, low: tp[k].low ?? null, mid: tp[k].mid ?? null, high: tp[k].high ?? null };
   const first = Object.values(prices).find(p => p.market != null);
   const sources = [];
-  if (first) sources.push({ site: 'TCGplayer', label: 'Market', price: first.market, cur: 'USD' });
+  if (first) sources.push({ site: 'TCGplayer', label: 'Market', price: first.market, cur: 'USD', url: (c.tcgplayer || {}).url || undefined });
   const eur = cm.trendPrice ?? cm.averageSellPrice;
-  if (eur) sources.push({ site: 'Cardmarket', label: 'Trend', price: eur, cur: 'EUR' });
+  if (eur) sources.push({ site: 'Cardmarket', label: 'Trend', price: eur, cur: 'EUR', url: (c.cardmarket || {}).url || undefined });
   const set = c.set || {};
   return {
     id: 'ptcg:' + c.id, tcg: null, game: 'Pokémon', origin: 'pokemontcg',
