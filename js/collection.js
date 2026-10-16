@@ -28,7 +28,7 @@ function render(){
  <div class="sc"><small>Gain vs. paid</small><b class="n ${g>=0?'up':'down'}">${g>=0?'+':'−'}${money(Math.abs(g))}</b>${most?`<div class="r2"><span>Most owned</span><span>${esc(most.name)} ×${most.qty}</span></div>`:''}</div>`;$('#stats').classList.toggle('two',bin);
  let h='';
  if(cur==='dash'){h=L.length?(()=>{const gs={};L.forEach(c=>{const g=c.game||'Other';(gs[g]=gs[g]||[]).push(c)});
-   return Object.keys(gs).sort().map(g=>{const all=gs[g].sort((x,y)=>val(y)-val(x)),open=OG.has(g);let a=all;
+   return (typeof valueCard==='function'?valueCard(L):'')+Object.keys(gs).sort().map(g=>{const all=gs[g].sort((x,y)=>val(y)-val(x)),open=OG.has(g);let a=all;
     if(open){a=all.filter(c=>gfPass(c,g));const m=GF.dir==='d'?-1:1;a=[...a].sort((x,y)=>{const p=SK(x,g),q=SK(y,g);return(p>q?1:p<q?-1:0)*m});GCN=a.length}
     const n=a.reduce((t,c)=>t+c.qty,0),tv=a.reduce((t,c)=>t+val(c)*c.qty,0),sh=open?a:a.slice(0,TOP);
     const nf=open?(GF.q?1:0)+(GF.state!=='all'?1:0)+(GF.notes!=='all'?1:0)+(GF.slab!=='all'?1:0)+Object.values(GF.sel).filter(x=>x.size).length:0;
