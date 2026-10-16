@@ -483,3 +483,13 @@ dialog{max-height:92vh;max-height:92dvh;-webkit-overflow-scrolling:touch}
  .dx-more{padding:24px 16px 32px}
  .dex[data-dx=hw] .dx-more{margin:0 10px 10px}
 }
+/* Card detail on computers: the card fills its frame, leaving a small even margin (--m; the Collector card frame
+   has a taller rounded top, so its card starts lower). Never taller than the window, so the whole card stays in view. */
+@media(min-width:761px){
+ #dView .dex .dx-stage{--m:18px;--mt:18px;min-height:min(64vh,620px)}
+ #dView .dex[data-dx=card] .dx-stage{--mt:34px}
+ #dView .dex[data-dx=card] .dx-stage>.vimg{margin:0 auto;height:min(calc(100% - var(--mt) - var(--m)),74vh)}
+ #dView .dex .dx-stage>.vimg{position:absolute;top:var(--mt);bottom:var(--m);left:var(--m);right:var(--m);margin:auto;
+  height:min(calc(100% - var(--mt) - var(--m)),80vh);width:auto;max-width:calc(100% - 2 * var(--m));max-height:none;object-fit:contain;border-radius:4.6%/3.3%}
+ #dView .dex .dx-stage>.face.vimg{aspect-ratio:5/7}
+}
