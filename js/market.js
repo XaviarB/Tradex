@@ -27,7 +27,7 @@ function valueSeries(L){const S2=L.map(c=>({q:c.qty||1,s:series(c,MKT.range)})).
 function valueCard(L){if(!L.length)return'';const v=valueSeries(L);if(v.hist.length<2&&!S.cards.some(c=>c.src&&c.src.tcg))return'';
  const a=v.hist[0],b=v.hist[v.hist.length-1],p=a?(b-a)/a*100:0;
  return `<div class="vcard"><div class="vch"><div><small>COLLECTION VALUE</small><b class="n">${money(b)}</b>${v.hist.length>1?` <span class="${p>=0?'up':'down'}">${p>=0?'▲':'▼'}${Math.abs(p).toFixed(1)}%</span>`:''}</div>${rangeBar()}</div>
- <div class="vcb">${v.hist.length>1?chart(v,{W:900,H:230,label:'Collection value',axis:'Value (USD)'}):'<div class="note">Your collection’s value chart fills in as daily market prices come in.</div>'}</div>
+ <div class="vcb">${v.hist.length>1?chart(v,{W:innerWidth<760?480:900,H:230,label:'Collection value',axis:'Value (USD)'}):'<div class="note">Your collection’s value chart fills in as daily market prices come in.</div>'}</div>
  <p class="note">Value of the cards you own now, using TCGplayer market prices for linked cards and your own recorded prices for the rest.</p></div>`}
 
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-rng]');if(!b)return;MKT.range=+b.dataset.rng;try{localStorage.setItem('tradex_rng',MKT.range)}catch(x){}
