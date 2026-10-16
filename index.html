@@ -15,7 +15,7 @@
 <section class="main">
  <button id="sbmax" title="Show sidebar" aria-label="Show sidebar">→</button>
  <div class="crumb" id="crumb"></div>
- <div class="top"><h1 id="title"></h1><span style="display:flex;gap:8px;align-items:center"><button id="impb">⬆ Import</button><button id="edb" data-ed-ui>✎ Customize</button></span></div>
+ <div class="top"><h1 id="title"></h1><span style="display:flex;gap:8px;align-items:center"><button id="impb">⬆ Import</button><button id="bkb">⬇ Backup</button><button id="edb" data-ed-ui>✎ Customize</button></span></div>
  <div class="bar"><input type="search" id="q" placeholder="Search name, set, artist" aria-label="Search"><button id="ft">Filters</button></div>
  <div class="gchips" id="gchips" hidden></div>
  <div class="fp" id="fp" hidden>
@@ -29,6 +29,7 @@
 <aside id="gfp" hidden aria-label="Filters"></aside>
 
 <dialog class="sd" id="dImp"></dialog>
+<dialog class="sd" id="dBak"></dialog>
 <dialog id="dEdit"><h2 id="eh" style="margin-top:0">Add card</h2><div class="f" id="form"></div>
  <div class="row"><button id="eCancel">Cancel</button><button class="pri" id="eSave">Save card</button></div></dialog>
 <dialog id="dAsk" style="max-width:380px"><h3 id="aT" style="margin-top:0"></h3><input id="aI" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)"><div class="row"><button id="aC">Cancel</button><button class="pri" id="aO">OK</button></div></dialog>
@@ -69,6 +70,7 @@
 <script src="js/ios-preview.js"></script>
 <script src="js/owner-gate.js"></script>
 <script src="js/import.js"></script>
+<script src="js/backup.js"></script>
 <link rel="stylesheet" href="css/listings.css">
 <div id="lsm" class="lsm" role="dialog" aria-modal="true" aria-label="Listings"><div class="lsp"><button class="lsx" aria-label="Close">✕</button><div id="lsbody" style="display:contents"></div></div></div>
 <script src="js/listings.js"></script>
