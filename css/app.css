@@ -483,3 +483,14 @@ dialog{max-height:92vh;max-height:92dvh;-webkit-overflow-scrolling:touch}
  .dx-more{padding:24px 16px 32px}
  .dex[data-dx=hw] .dx-more{margin:0 10px 10px}
 }
+/* Card detail on computers: the card fills its frame, leaving room at the sides (--m), above (--mt) and below (--mb);
+   it is drawn a little smaller than the space allows, so the sides get room too. The Collector card frame has a taller rounded top, so its card starts
+   lower. Never taller than the window, so the whole card stays in view. */
+@media(min-width:761px){
+ #dView .dex .dx-stage{--m:36px;--mt:36px;--mb:36px;min-height:min(64vh,620px)}
+ #dView .dex[data-dx=card] .dx-stage{--mt:52px}
+ #dView .dex[data-dx=card] .dx-stage>.vimg{margin:0 auto;height:min(calc((100% - var(--mt) - var(--mb)) * .9),68vh)}
+ #dView .dex .dx-stage>.vimg{position:absolute;top:var(--mt);bottom:var(--mb);left:var(--m);right:var(--m);margin:auto;
+  height:min(calc((100% - var(--mt) - var(--mb)) * .9),74vh);width:auto;max-width:calc(100% - 2 * var(--m));max-height:none;object-fit:contain;border-radius:4.6%/3.3%}
+ #dView .dex .dx-stage>.face.vimg{aspect-ratio:5/7}
+}
