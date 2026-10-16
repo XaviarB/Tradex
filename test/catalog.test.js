@@ -137,6 +137,8 @@ test('every ability and attack reaches the card, even when only TCGplayer knows 
   // Charizard: the Pokémon TCG API lists its Pokémon Power and attack, so its list is used.
   const [z] = await catalog().enrich([{ game: 'Pokémon', name: 'Charizard', tcg: 42382, sub: 'Holofoil' }], { withDetails: true });
   assert.deepEqual(z.moves.map(m => m.name), ['Energy Burn', 'Fire Spin']);
+  // The Cardmarket box links to the card's own Cardmarket page.
+  assert.equal(z.sources.find(s => s.site === 'Cardmarket').url, 'https://prices.pokemontcg.io/cardmarket/base1-4');
 });
 
 test('details are not cached when a source failed, so the next look tries again', async () => {

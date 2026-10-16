@@ -7,7 +7,12 @@ let vid=null,vi=0;
 function ev(c){const v=vi>0&&c.versions&&c.versions[vi-1];if(!v)return c;const o=Object.fromEntries(Object.entries(v).filter(([,x])=>x));return {...c,...o,moves:o.moves||(o.text?null:c.moves)}}
 const vstat={};
 const MKS=['TCGplayer','Cardmarket','eBay','PriceCharting'],GPATH={Magic:'Magic','Pokémon':'Pokemon','Yu-Gi-Oh!':'YuGiOh','One Piece':'OnePiece'};
-const mkUrl=(site,c)=>{const n=encodeURIComponent(c.name||''),q=encodeURIComponent([c.name,c.set,c.num].filter(Boolean).join(' '));return site==='TCGplayer'?'https://www.tcgplayer.com/search/all/product?q='+q+'&view=grid':site==='Cardmarket'?'https://www.cardmarket.com/en/'+(GPATH[c.game]||'Magic')+'/Products/Search?searchString='+n:site==='eBay'?'https://www.ebay.com/sch/i.html?_nkw='+q+'&LH_Sold=1&LH_Complete=1':'https://www.pricecharting.com/search-products?q='+q+'&type=prices'};
+/* the card's own page on each market (its listings), falling back to a search when the exact page isn't known */
+const mkUrl=(site,c)=>{const n=encodeURIComponent(c.name||''),q=encodeURIComponent([c.name,c.set,c.num].filter(Boolean).join(' ')),own=((c.sources||[]).find(x=>x&&x.site===site&&x.url)||{}).url,tcg=c.src&&c.src.tcg;
+ if(site==='TCGplayer')return tcg?'https://www.tcgplayer.com/product/'+encodeURIComponent(tcg)+'?Language=English':own||'https://www.tcgplayer.com/search/all/product?q='+q+'&view=grid';
+ if(site==='Cardmarket')return own||'https://www.cardmarket.com/en/'+(GPATH[c.game]||'Magic')+'/Products/Search?searchString='+n;
+ if(site==='eBay')return own||'https://www.ebay.com/sch/i.html?_nkw='+q+'&_sacat=183454';
+ return own||'https://www.pricecharting.com/search-products?q='+q+'&type=prices'};
 const CMULT={'Near Mint':1,'Lightly Played':.85,'Moderately Played':.7,'Heavily Played':.5,'Damaged':.35},CABB={'Near Mint':'NM','Lightly Played':'LP','Moderately Played':'MP','Heavily Played':'HP','Damaged':'DMG'}; /* market comps are Near Mint prices; scaled by the card's condition (not for graded slabs) */
 const CKEY={'Near Mint':'near_mint','Lightly Played':'lightly_played','Moderately Played':'moderately_played','Heavily Played':'heavily_played','Damaged':'damaged'};
 /* exact price for this condition when the server gave us one (x.byCond); otherwise the percentage estimate */
@@ -25,8 +30,7 @@ function mkFill(c,e){if(e.tcg)c.src={...(c.src||{}),game:e.game,tcg:e.tcg,sub:e.
  const n=(c.moves||[]).length;if(e.moves&&e.moves.length>n){c.moves=e.moves;c.text=e.text||undefined}
  else if(e.text&&!n&&!(e.moves||[]).length&&String(e.text).length>String(c.text||'').length)c.text=e.text}
 function mpHTML(c){const m=c.grader?1:(CMULT[c.cond]??1),ab=!c.grader&&CABB[c.cond]?' · '+CABB[c.cond]:'',src=(c.sources||[]).map(x=>adjSrc(c,x,m,ab)),box=(site,x,extra)=>`<a class="pc" data-ls="${esc(site)}" href="${esc(mkUrl(site,c))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><small>${esc(site)}${x?' · '+esc(x.label)+(x.cur==='EUR'?' · converted':''):''}</small><b${x?'':' style="color:var(--mut)"'}>${x?(x.est?'~':'')+mon(x):'—'}</b><small style="color:var(--acc)">${x?'View listings ↗':'Search ↗'}</small></a>`;
- const first=MKS.map(m=>src.find(x=>x.site===m)),rest=src.filter(x=>!first.includes(x)).slice(0,4),rf='';
- return `<div class="pr">${MKS.map((m,i)=>box(m,first[i])).join('')}${rest.map(x=>box(x.site,x)).join('')}</div>${rf}`}
+ return `<div class="pr">${MKS.map(m=>box(m,src.find(x=>x.site===m))).join('')}</div>`}
 const fmtD=d=>{if(!d)return'';const x=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);return isNaN(x)?d:x.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})};
 function verStrip(c){const all=[{set:c.set,year:c.year,img:c.img},...(c.versions||[])],st=vstat[c.id],n=(c.versions||[]).length;
  return `<div class="vers" role="tablist" aria-label="Versions">${all.map((v,i)=>{const nm=v.set||v.label||'Unknown set';return `<button class="vb ${i===vi?'on':''}" data-a="vs" data-i="${i}" title="${esc(nm)} · ${esc(fmtD(v.year))}"><span class="vt">${v.img?`<img src="${esc(v.img)}" alt="">`:'·'}</span><small><b>${esc(nm)}</b></small><small>${esc(fmtD(v.year))}</small></button>`}).join('')}</div>${st==='load'?'<div class="note" style="margin:4px 0 0">Finding other versions…</div>':st==='fail'&&!n?'<div class="note" style="margin:4px 0 0">Couldn’t load other versions here. Reopen the card to try again.</div>':st==='done'&&!n?'<div class="note" style="margin:4px 0 0">No other versions found.</div>':''}`}

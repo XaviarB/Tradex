@@ -109,7 +109,7 @@ function tcgSources(c, sub) {
 }
 
 // Bumped when the details format changes, so older cached details are fetched again.
-const DETAILS_V = 'v2:';
+const DETAILS_V = 'v3:';
 async function cachedDetails(key, fetcher) {
   key = DETAILS_V + key;
   if (db.readable()) {

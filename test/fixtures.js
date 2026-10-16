@@ -58,7 +58,7 @@ module.exports = {
     set: { id: 'base1', name: 'Base', series: 'Base', printedTotal: 102, releaseDate: '1999/01/09', ptcgoCode: 'BS' },
     images: { small: 'https://images.pokemontcg.io/base1/4.png', large: 'https://images.pokemontcg.io/base1/4_hires.png' },
     tcgplayer: { url: 'https://prices.pokemontcg.io/tcgplayer/base1-4', prices: { holofoil: { low: 300, mid: 420, high: 1500, market: 389.99 } } },
-    cardmarket: { prices: { averageSellPrice: 330, trendPrice: 345.5 } },
+    cardmarket: { url: 'https://prices.pokemontcg.io/cardmarket/base1-4', prices: { averageSellPrice: 330, trendPrice: 345.5 } },
   }],
   ygo: [{
     id: 89631139, name: 'Blue-Eyes White Dragon', type: 'Normal Monster', desc: 'This legendary dragon is a powerful engine of destruction.', atk: 3000, def: 2500, level: 8, race: 'Dragon', attribute: 'LIGHT',

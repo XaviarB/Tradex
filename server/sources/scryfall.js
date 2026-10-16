@@ -15,9 +15,9 @@ function norm(c) {
   if (num(p.usd_etched) != null) prices['Etched Foil'] = { market: num(p.usd_etched) };
   const sources = [];
   const usd = num(p.usd) ?? num(p.usd_foil);
-  if (usd != null) sources.push({ site: 'TCGplayer', label: 'Market', price: usd, cur: 'USD' });
+  if (usd != null) sources.push({ site: 'TCGplayer', label: 'Market', price: usd, cur: 'USD', url: (c.purchase_uris || {}).tcgplayer || undefined });
   const eur = num(p.eur) ?? num(p.eur_foil);
-  if (eur != null) sources.push({ site: 'Cardmarket', label: 'Trend', price: eur, cur: 'EUR' });
+  if (eur != null) sources.push({ site: 'Cardmarket', label: 'Trend', price: eur, cur: 'EUR', url: (c.purchase_uris || {}).cardmarket || undefined });
   return {
     id: 'scryfall:' + c.id, tcg: c.tcgplayer_id || null, game: 'Magic', origin: 'scryfall',
     name: c.name, set: c.set_name, setCode: (c.set || '').toUpperCase(), num: c.collector_number, year: c.released_at || null,
