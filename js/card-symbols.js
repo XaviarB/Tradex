@@ -23,7 +23,9 @@ function msym(i){const u=i.toUpperCase(),disc=c=>`<circle cx="12" cy="12" r="12"
   if(ps.includes('P')){const o=ps.find(x=>x!=='P');b=disc(MC[o]||'#cdc7c4')+txt('Φ',12,17,14);t=(MN[o]||o)+' or 2 life'}
   else{const a=ps[0],c=ps[1];b=disc(MC[a]||'#cdc7c4')+`<path d="M20.5 3.5A12 12 0 0 1 3.5 20.5z" fill="${MC[c]||'#cdc7c4'}"/>`+mini(a,7.5)+mini(c,16.5);t=ps.map(x=>MN[x]?MN[x].replace(' mana',''):x).join(' or ')}}
  else b=disc('#cdc7c4')+txt(u,12,u.length>3?14:15.5,u.length>3?7:u.length>1?9:12);
- return `<span class="ms" title="${esc(t)}" role="img" aria-label="${esc(t)}"><svg viewBox="0 0 24 24" width="1.15em" height="1.15em" aria-hidden="true">${b}</svg></span>`}
+ /* the official symbol from Scryfall's symbol set; the drawn one above stays as the fallback if it can't load */
+ const svg=`<svg viewBox="0 0 24 24" width="1.15em" height="1.15em" aria-hidden="true">${b}</svg>`,code=u==='½'?'HALF':u==='∞'?'INFINITY':u.replace(/\//g,'');
+ return `<span class="ms" title="${esc(t)}" role="img" aria-label="${esc(t)}">${/^[A-Z0-9]{1,4}$/.test(code)?`<img class="msi" src="https://svgs.scryfall.io/card-symbols/${code}.svg" alt="" width="18" height="18" loading="lazy" onerror="this.outerHTML=this.nextElementSibling.innerHTML"><template>${svg}</template>`:svg}</span>`}
 const mana=h=>String(h).replace(/\{([^}]+)\}/g,(_,i)=>msym(i));
 const ZI={
 fire:'<path d="M12.6 3c.7 3.2 5 5.2 5 10a5.6 5.6 0 0 1-11.2 0c0-2.2 1-3.6 2.2-4.8.1 1.8.9 2.8 2 3.1-.6-3 .1-5.6 2-8.3z"/>',

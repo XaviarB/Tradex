@@ -19,9 +19,9 @@ const CKEY={'Near Mint':'near_mint','Lightly Played':'lightly_played','Moderatel
 function adjSrc(c,x,m,ab){const bc=x.byCond,lb=String(x.label||'');if(!bc||typeof bc!=='object'||c.grader)return{...x,price:x.price*m,label:lb+ab};const k=CKEY[c.cond],ex=bc[k]??(k==='near_mint'?bc.mint:undefined);if(ex!=null&&isFinite(+ex))return{...x,price:+ex,label:lb+ab,est:false};return{...x,price:(+(bc.near_mint??bc.mint??x.price))*m,label:lb+ab,est:true}}
 /* on a Tradéx server: quietly fetch fresh live prices when a card is opened (at most once an hour per card) */
 /* (cards whose text was looked up before every ability and attack was collected, txv<2, are looked up again once) */
-async function autoPrice(c){if(!window.TX_SERVER||typeof OWNER==='undefined'||!OWNER||!c.game)return;if(c.srcAt&&Date.now()-c.srcAt<36e5&&c.txv===2)return;
- try{const r=await fetch('/api/enrich',{method:'POST',headers:{'content-type':'application/json','x-owner':localStorage.getItem('tradex_pw')||''},body:JSON.stringify({cards:[{game:c.game,name:c.name,set:c.set,num:c.num,finish:c.finish,tcg:c.src&&c.src.tcg,sub:c.src&&c.src.sub}]})}).then(x=>x.ok?x.json():Promise.reject()),e=(r.cards||[])[0];
- if(!e)return;const was=JSON.stringify([c.text,c.moves]);mkFill(c,e);c.srcAt=Date.now();c.txv=2;save();if(vid===c.id&&$('#mp'))$('#mp').innerHTML=mpHTML(c);
+async function autoPrice(c){if(!window.TX_SERVER||typeof OWNER==='undefined'||!OWNER||!c.game)return;if(c.srcAt&&Date.now()-c.srcAt<36e5&&c.txv===3)return;
+ try{const r=await fetch('/api/enrich',{method:'POST',headers:{'content-type':'application/json','x-owner':localStorage.getItem('tradex_pw')||''},body:JSON.stringify({cards:[{game:c.game,name:c.name,set:c.set,num:c.num,finish:c.finish,grader:c.grader||undefined,grade:c.grade||undefined,tcg:c.src&&c.src.tcg,sub:c.src&&c.src.sub}]})}).then(x=>x.ok?x.json():Promise.reject()),e=(r.cards||[])[0];
+ if(!e)return;const was=JSON.stringify([c.text,c.moves]);mkFill(c,e);c.srcAt=Date.now();c.txv=3;save();if(vid===c.id&&$('#mp'))$('#mp').innerHTML=mpHTML(c);
  if(vid===c.id&&was!==JSON.stringify([c.text,c.moves])&&$('#vp .dx-txt'))$('#vp .dx-txt').innerHTML=descHTML(ev(c))}catch(x){}}
 /* copies what the server found for a card (its TCGplayer printing, prices, rules text, picture) onto it, keeping what's already set */
 /* Rules text is the exception: a fuller list of abilities and attacks (or longer text) replaces what the card has. */

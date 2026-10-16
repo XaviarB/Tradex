@@ -9,6 +9,7 @@ function start(opt = {}) {
   const calls = [];
   const keys = { catalog_sets: ['group_id'], catalog_cards: ['product_id'], catalog_prices: ['product_id', 'sub'], price_history: ['product_id', 'sub', 'day'], card_details: ['key'], catalog_meta: ['key'] };
   let tcgcsvBuild = opt.build || '2026-10-15T20:05:00+0000';
+  const archives = {};
 
   const json = (res, code, body) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(body)); };
   const read = req => new Promise(r => { let b = ''; req.on('data', d => (b += d)); req.on('end', () => r(b ? JSON.parse(b) : null)); });
@@ -73,8 +74,12 @@ function start(opt = {}) {
     const u = new URL(req.url, 'http://x'), p = u.pathname;
     if (p.startsWith('/supabase/rest/v1/')) return supabase(req, res, p.slice('/supabase/rest/v1/'.length), u.searchParams);
     calls.push('GET ' + p + u.search);
-    if (p === '/tcgcsv/last-updated.txt') { res.writeHead(200); return res.end(tcgcsvBuild); }
     let m;
+    if ((m = /^\/tcgcsv\/archive\/tcgplayer\/prices-(\d{4}-\d{2}-\d{2})\.ppmd\.7z$/.exec(p))) { if (!archives[m[1]]) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'Content-Type': 'application/x-7z-compressed' }); return res.end(Buffer.from(archives[m[1]])); }
+    if (p === '/ebay/identity/v1/oauth2/token') return req.headers.authorization === 'Basic ' + Buffer.from('ebay-id:ebay-secret').toString('base64') ? json(res, 200, { access_token: 'tok', expires_in: 7200 }) : json(res, 401, { error: 'invalid_client' });
+    if (p === '/ebay/buy/browse/v1/item_summary/search') { if (req.headers.authorization !== 'Bearer tok') return json(res, 401, {}); const w = u.searchParams.get('q').toLowerCase().split(' ')[0]; return json(res, 200, { itemSummaries: F.ebay.filter(x => x.title.toLowerCase().includes(w)) }); }
+    if (p === '/pricecharting/api/products') { if (u.searchParams.get('t') !== 'pc-token') return json(res, 401, { status: 'error' }); const w = u.searchParams.get('q').toLowerCase().split(' ')[0]; return json(res, 200, { status: 'success', products: F.pricecharting.filter(x => x['product-name'].toLowerCase().includes(w)) }); }
+    if (p === '/tcgcsv/last-updated.txt') { res.writeHead(200); return res.end(tcgcsvBuild); }
     if ((m = /^\/tcgcsv\/tcgplayer\/(\d+)\/groups$/.exec(p))) return json(res, 200, { success: true, errors: [], results: F.groups[m[1]] || [] });
     if ((m = /^\/tcgcsv\/tcgplayer\/(\d+)\/(\d+)\/products$/.exec(p))) return json(res, 200, { success: true, errors: [], results: F.products[m[2]] || [] });
     if ((m = /^\/tcgcsv\/tcgplayer\/(\d+)\/(\d+)\/prices$/.exec(p))) return json(res, 200, { success: true, errors: [], results: (F.prices[m[2]] || []).map(x => ({ ...x, marketPrice: x.marketPrice == null ? null : +(x.marketPrice * (opt.priceFactor || 1)).toFixed(2) })) });
@@ -88,8 +93,8 @@ function start(opt = {}) {
   return new Promise(resolve => server.listen(0, '127.0.0.1', () => {
     const base = 'http://127.0.0.1:' + server.address().port;
     resolve({
-      base, tables, calls, setBuild: b => { tcgcsvBuild = b; }, setPriceFactor: f => { opt.priceFactor = f; },
-      env: { TCGCSV_BASE: base + '/tcgcsv', SCRYFALL_BASE: base + '/scryfall', POKEMONTCG_BASE: base + '/pokemontcg', YGOPRODECK_BASE: base + '/ygoprodeck', SUPABASE_URL: base + '/supabase' },
+      base, tables, calls, setBuild: b => { tcgcsvBuild = b; }, setArchive: (day, bytes) => { archives[day] = bytes; }, setPriceFactor: f => { opt.priceFactor = f; },
+      env: { TCGCSV_BASE: base + '/tcgcsv', SCRYFALL_BASE: base + '/scryfall', POKEMONTCG_BASE: base + '/pokemontcg', YGOPRODECK_BASE: base + '/ygoprodeck', SUPABASE_URL: base + '/supabase', EBAY_API_BASE: base + '/ebay', PRICECHARTING_BASE: base + '/pricecharting' },
       close: () => new Promise(r => server.close(r)),
     });
   }));

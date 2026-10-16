@@ -33,7 +33,12 @@ const ROUTES = {
     return [200, { cards: await catalog.enrich(cards, { withDetails: cards.length <= 3 }) }];
   },
   'POST /api/prices': async (q, body) => [200, { prices: await catalog.latest(body.items) }],
-  'POST /api/history': async (q, body) => [200, { series: await catalog.history(body.items, body.days) }],
+  'POST /api/history': async (q, body) => {
+    const series = await catalog.history(body.items, body.days);
+    // A card with only a few days of history starts the earlier-history fill-in (at most every 10 minutes).
+    if (Object.keys(series).length < (body.items || []).length || Object.values(series).some(s => s.d.length < 3)) kickBackfill();
+    return [200, { series }];
+  },
   'GET /api/catalog/status': async () => [200, await catalog.status()],
   // Starts a card database load by hand. Needs the TX_ADMIN_TOKEN setting, sent as the x-admin-token header.
   'POST /api/catalog/ingest': async (q, body, req) => {
@@ -45,6 +50,13 @@ const ROUTES = {
   // No free source has live marketplace listings; the page shows its own message and links out instead.
   'GET /api/listings': async () => [501, { error: 'Live listings are not available' }],
 };
+
+let lastKick = 0;
+function kickBackfill() {
+  if (Date.now() - lastKick < 10 * 60e3) return;
+  lastKick = Date.now();
+  require('./backfill').run().catch(() => {});
+}
 
 async function handle(req, res) {
   const u = new URL(req.url, 'http://x');
