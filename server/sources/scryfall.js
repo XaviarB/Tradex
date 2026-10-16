@@ -22,7 +22,7 @@ function norm(c) {
     id: 'scryfall:' + c.id, tcg: c.tcgplayer_id || null, game: 'Magic', origin: 'scryfall',
     name: c.name, set: c.set_name, setCode: (c.set || '').toUpperCase(), num: c.collector_number, year: c.released_at || null,
     rarity: RAR[c.rarity] || c.rarity || null, type: c.type_line || face.type_line || null,
-    cost: c.mana_cost || face.mana_cost || null, text: c.oracle_text || face.oracle_text || null,
+    cost: c.mana_cost || face.mana_cost || null, text: c.oracle_text || (c.card_faces || []).map(f => [f.name, f.oracle_text].filter(Boolean).join('\n')).filter(Boolean).join('\n\n') || null,
     flavor: c.flavor_text || face.flavor_text || null, artist: c.artist || null,
     img: im.large || im.normal || null, imgSm: im.small || im.normal || null,
     url: (c.purchase_uris || {}).tcgplayer || c.scryfall_uri || null, prices, sources,

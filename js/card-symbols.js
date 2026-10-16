@@ -63,5 +63,7 @@ function ico(h,g,txt){h=String(h);
  if(g==='Yu-Gi-Oh!')return h.replace(/\b(DARK|LIGHT|EARTH|WATER|FIRE|WIND|DIVINE)\b/g,(m,w)=>inIcon(GD['Yu-Gi-Oh!'][w.toLowerCase()])).replace(/\b(Level|Rank)\s*(\d+)/g,(m,k,n)=>inIcon([k==='Rank'?'#2b2b2b':'#e8912d','star',k+' '+n])+n);
  return h}
 function cardText(c){
- if(c.moves&&c.moves.length)return '<h4>CARD TEXT</h4><div class="mv">'+c.moves.map(m=>m.kind==='attack'?`<div class="mr"><div class="mvh"><div class="ens">${(m.cost||[]).map(sym).join('')}</div><div><b class="mn">${esc(m.name)}</b>${m.text?`<div>${ico(esc(m.text),'Pokémon',1)}</div>`:''}</div><div class="dmg">${esc(m.damage)}</div></div></div>`:`<div class="mr"><b class="pw">${esc(m.label||'Pokémon Power')}: ${esc(m.name)}</b><div>${ico(esc(m.text),'Pokémon',1)}</div></div>`).join('')+'</div>';
+ /* rules printed besides the moves (e.g. the Pokémon ex rule), unless it only repeats them */
+ const rules=c.moves&&c.moves.length&&c.text&&!c.moves.some(m=>m.name&&String(c.text).includes(m.name))?`<div class="mr"><div>${ico(esc(c.text),c.game,1)}</div></div>`:'';
+ if(c.moves&&c.moves.length)return '<h4>CARD TEXT</h4><div class="mv">'+c.moves.map(m=>m.kind==='attack'?`<div class="mr"><div class="mvh"><div class="ens">${(m.cost||[]).map(sym).join('')}</div><div><b class="mn">${esc(m.name)}</b>${m.text?`<div>${ico(esc(m.text),'Pokémon',1)}</div>`:''}</div><div class="dmg">${esc(m.damage)}</div></div></div>`:`<div class="mr"><b class="pw">${esc(m.label||'Pokémon Power')}: ${esc(m.name)}</b><div>${ico(esc(m.text),'Pokémon',1)}</div></div>`).join('')+rules+'</div>';
  const fl=c.flavor?`<div class="fl">${esc(c.flavor)}</div>`:'';return (c.text||fl)?`<h4>CARD TEXT</h4>${c.text?`<div class="txt">${ico(esc(c.text),c.game,1)}</div>`:''}${fl}`:''}

@@ -13,12 +13,17 @@ const CKEY={'Near Mint':'near_mint','Lightly Played':'lightly_played','Moderatel
 /* exact price for this condition when the server gave us one (x.byCond); otherwise the percentage estimate */
 function adjSrc(c,x,m,ab){const bc=x.byCond,lb=String(x.label||'');if(!bc||typeof bc!=='object'||c.grader)return{...x,price:x.price*m,label:lb+ab};const k=CKEY[c.cond],ex=bc[k]??(k==='near_mint'?bc.mint:undefined);if(ex!=null&&isFinite(+ex))return{...x,price:+ex,label:lb+ab,est:false};return{...x,price:(+(bc.near_mint??bc.mint??x.price))*m,label:lb+ab,est:true}}
 /* on a Tradéx server: quietly fetch fresh live prices when a card is opened (at most once an hour per card) */
-async function autoPrice(c){if(!window.TX_SERVER||typeof OWNER==='undefined'||!OWNER||!c.game)return;if(c.srcAt&&Date.now()-c.srcAt<36e5)return;
+/* (cards whose text was looked up before every ability and attack was collected, txv<2, are looked up again once) */
+async function autoPrice(c){if(!window.TX_SERVER||typeof OWNER==='undefined'||!OWNER||!c.game)return;if(c.srcAt&&Date.now()-c.srcAt<36e5&&c.txv===2)return;
  try{const r=await fetch('/api/enrich',{method:'POST',headers:{'content-type':'application/json','x-owner':localStorage.getItem('tradex_pw')||''},body:JSON.stringify({cards:[{game:c.game,name:c.name,set:c.set,num:c.num,finish:c.finish,tcg:c.src&&c.src.tcg,sub:c.src&&c.src.sub}]})}).then(x=>x.ok?x.json():Promise.reject()),e=(r.cards||[])[0];
- if(!e)return;mkFill(c,e);c.srcAt=Date.now();save();if(vid===c.id&&$('#mp'))$('#mp').innerHTML=mpHTML(c)}catch(x){}}
+ if(!e)return;const was=JSON.stringify([c.text,c.moves]);mkFill(c,e);c.srcAt=Date.now();c.txv=2;save();if(vid===c.id&&$('#mp'))$('#mp').innerHTML=mpHTML(c);
+ if(vid===c.id&&was!==JSON.stringify([c.text,c.moves])&&$('#vp .dx-txt'))$('#vp .dx-txt').innerHTML=descHTML(ev(c))}catch(x){}}
 /* copies what the server found for a card (its TCGplayer printing, prices, rules text, picture) onto it, keeping what's already set */
+/* Rules text is the exception: a fuller list of abilities and attacks (or longer text) replaces what the card has. */
 function mkFill(c,e){if(e.tcg)c.src={...(c.src||{}),game:e.game,tcg:e.tcg,sub:e.sub};if(e.sources&&e.sources.length)c.sources=e.sources;
- ['img','type','cost','text','flavor','moves','artist'].forEach(k=>{if(e[k]&&!(Array.isArray(c[k])?c[k].length:c[k]))c[k]=e[k]})}
+ ['img','type','cost','flavor','artist'].forEach(k=>{if(e[k]&&!c[k])c[k]=e[k]});
+ const n=(c.moves||[]).length;if(e.moves&&e.moves.length>n){c.moves=e.moves;c.text=e.text||undefined}
+ else if(e.text&&!n&&!(e.moves||[]).length&&String(e.text).length>String(c.text||'').length)c.text=e.text}
 function mpHTML(c){const m=c.grader?1:(CMULT[c.cond]??1),ab=!c.grader&&CABB[c.cond]?' · '+CABB[c.cond]:'',src=(c.sources||[]).map(x=>adjSrc(c,x,m,ab)),box=(site,x,extra)=>`<a class="pc" data-ls="${esc(site)}" href="${esc(mkUrl(site,c))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><small>${esc(site)}${x?' · '+esc(x.label)+(x.cur==='EUR'?' · converted':''):''}</small><b${x?'':' style="color:var(--mut)"'}>${x?(x.est?'~':'')+mon(x):'—'}</b><small style="color:var(--acc)">${x?'View listings ↗':'Search ↗'}</small></a>`;
  const first=MKS.map(m=>src.find(x=>x.site===m)),rest=src.filter(x=>!first.includes(x)).slice(0,4),rf='';
  return `<div class="pr">${MKS.map((m,i)=>box(m,first[i])).join('')}${rest.map(x=>box(x.site,x)).join('')}</div>${rf}`}
@@ -41,10 +46,11 @@ async function loadVers(c){const g=(c.src&&c.src.game)||GK[c.game];if(!g||vstat[
   vstat[c.id]='done'}catch(e){vstat[c.id]='fail'}
  show()}
 function cur_(){return S.cards.find(x=>x.id===vid)}
+const descHTML=e=>cardText(e).replace('<h4>CARD TEXT</h4>','')||'<div class="txt" style="opacity:.75">No card text on file.</div>';
 function panel(c){const e=ev(c);const p=pct(c),free=S.binders.filter(b=>isB(b)&&!c.binders.includes(b)&&(!(S.bg||{})[b]||S.bg[b]===(c.game||'Other')));
  const det=[['Illustrator',e.artist],['Released',e.year],['Rarity',e.rarity],['Number',e.num],c.grader&&['Graded',c.grader+(c.grade?' '+c.grade:'')],c.who&&['Imported from',c.who],c.finish&&['Finish',c.finish],['Game',c.game],e.type&&['Type',e.type+(c.cost!=null?' · Cost '+(c.game==='Magic'?costB(c.cost):c.cost):'')],['Collected',c.collected],['Acquired for',money(c.paid)],c.acquired&&['How acquired',c.acquired]].filter(Boolean);
  const lh=leftHTML(c).replace(/class="((?:face )?vimg)"/,(m,k)=>'class="'+k+(dxA?'':' still')+'"');
- const skin=dxSkin(),num=esc(e.num||'—'),desc=cardText(e).replace('<h4>CARD TEXT</h4>','')||'<div class="txt" style="opacity:.75">No card text on file.</div>';
+ const skin=dxSkin(),num=esc(e.num||'—'),desc=descHTML(e);
  return `<div class="dex" data-dx="${skin}"><div class="dx-scroll"><section class="dx-hero">
  <div class="dx-head"><span class="dx-lens"><svg class="dx-logo" viewBox="0 0 100 100" aria-label="Tradéx"><defs><path id="tdArc" d="M 17 82 Q 37 50 97 47"/></defs><text><textPath href="#tdArc" startOffset="50%" text-anchor="middle" textLength="86" lengthAdjust="spacingAndGlyphs">Tradéx</textPath></text></svg></span><span class="dx-lights"><i class="r"></i><i class="y"></i><i class="g"></i></span><span class="dx-brand">Tradéx</span><div class="dx-tab"><b>#${num}</b> ${esc(c.name)}</div>
  <div class="dx-skins" role="group" aria-label="Choose a look">${DXK.map(([k,l])=>`<button type="button" data-a="skin" data-s="${k}" class="${k===skin?'on':''}" title="${l}" aria-label="${l} look"></button>`).join('')}</div>

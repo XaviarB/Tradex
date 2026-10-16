@@ -108,7 +108,10 @@ function tcgSources(c, sub) {
   return out;
 }
 
+// Bumped when the details format changes, so older cached details are fetched again.
+const DETAILS_V = 'v2:';
 async function cachedDetails(key, fetcher) {
+  key = DETAILS_V + key;
   if (db.readable()) {
     try {
       const r = await db.select('card_details', 'select=data,fetched_at&key=eq.' + encodeURIComponent(key));
@@ -116,6 +119,8 @@ async function cachedDetails(key, fetcher) {
     } catch (e) { /* table not created yet */ }
   }
   const data = await fetcher();
+  // Details missing a source that failed this time are not kept, so the next look tries again.
+  if (data && data.partial) { delete data.partial; return data; }
   if (data && db.writable()) db.upsert('card_details', [{ key, data, fetched_at: new Date().toISOString() }], 'key').catch(() => {});
   return data;
 }
@@ -138,14 +143,17 @@ async function details(c) {
       try {
         const x = await live.details(c);
         if (x) {
-          for (const k of ['text', 'flavor', 'artist', 'cost', 'moves', 'type']) if (x[k] && (!Array.isArray(x[k]) || x[k].length)) out[k] = out[k] || x[k];
+          for (const k of ['flavor', 'artist', 'cost', 'type']) if (x[k]) out[k] = out[k] || x[k];
+          // Keep whichever list has every ability and attack; the game's own database wins a tie.
+          if (x.moves && x.moves.length && x.moves.length >= (out.moves || []).length) { out.moves = x.moves; if (x.text || !out.text) out.text = x.text || null; }
+          else if (x.text && (!out.text || (!out.moves && x.text.length > out.text.length))) out.text = x.text;
           out.img2 = x.img;
           out.extraSources = (x.sources || []).filter(s => s.site !== 'TCGplayer');
           if (!c.tcg && x.sources.length) out.liveSources = x.sources;
         }
-      } catch (e) { log('live details failed:', e.message); }
+      } catch (e) { log('live details failed:', e.message); out.partial = true; }
     }
-    return Object.keys(out).length ? out : null;
+    return Object.keys(out).filter(k => k !== 'partial').length ? strip(out) : null;
   });
 }
 const strip = o => Object.fromEntries(Object.entries(o).filter(([, v]) => v != null && v !== ''));
@@ -173,7 +181,9 @@ async function enrich(cards, { withDetails = false } = {}) {
       if (withDetails) {
         const d = await details({ ...out, game: m.game }).catch(() => null);
         if (d) {
-          for (const k of ['text', 'flavor', 'artist', 'cost', 'moves']) if (!out[k] && d[k]) out[k] = d[k];
+          for (const k of ['flavor', 'artist', 'cost']) if (!out[k] && d[k]) out[k] = d[k];
+          if (d.moves && d.moves.length > (out.moves || []).length) { out.moves = d.moves; out.text = d.text; }
+          else if (d.text && (!out.text || (!(out.moves || []).length && d.text.length > out.text.length))) out.text = d.text;
           if (!out.type && d.type) out.type = d.type;
           if (!out.img && d.img2) out.img = d.img2;
           out.sources = [...out.sources, ...(d.extraSources || [])];

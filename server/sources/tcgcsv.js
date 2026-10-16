@@ -54,13 +54,52 @@ function cardRow(p, group, game) {
   };
 }
 
+// Pokémon energy letters TCGplayer uses in attack costs, e.g. "[RCC] Fire Spin (100)".
+const ENERGY = { G: 'Grass', R: 'Fire', W: 'Water', L: 'Lightning', P: 'Psychic', F: 'Fighting', D: 'Darkness', M: 'Metal', Y: 'Fairy', N: 'Dragon', C: 'Colorless' };
+const energyOf = cost => {
+  const out = [];
+  for (const t of String(cost).match(/\d+|[A-Za-z]+/g) || []) {
+    if (/^\d+$/.test(t)) { for (let i = 0; i < Math.min(+t, 8); i++) out.push('Colorless'); continue; }
+    const w = Object.values(ENERGY).find(e => e.toLowerCase() === t.toLowerCase());
+    if (w) out.push(w); else for (const ch of t.toUpperCase()) if (ENERGY[ch]) out.push(ENERGY[ch]);
+  }
+  return out;
+};
+// One attack from TCGplayer's "Attack 1" field: "[cost] Name (damage)" then the effect on the next line.
+function attackOf(raw) {
+  const t = stripHtml(raw);
+  if (!t) return null;
+  const nl = t.indexOf('\n'), head = (nl < 0 ? t : t.slice(0, nl)).trim(), text = nl < 0 ? '' : t.slice(nl + 1).trim();
+  const m = /^(?:\[([^\]]*)\]\s*)?(.+?)(?:\s*\(([^)]*)\))?$/.exec(head);
+  if (!m) return { kind: 'attack', name: head, cost: [], text, damage: '' };
+  return { kind: 'attack', name: m[2].trim(), cost: m[1] ? energyOf(m[1]) : [], text, damage: (m[3] || '').trim() };
+}
+// Abilities in TCGplayer's card text start with a bold heading ("Ability: Name", "Poké-POWER — Name", ...).
+const POWER = /^(Ability|Pok[eé]-?Power|Pok[eé]-?Body|Pok[eé]mon Power|Ancient Trait|VSTAR Power|Held Item)\s*[:—–-]?\s*(.*)$/i;
+function powersOf(html) {
+  if (!html) return { moves: [], rest: null };
+  const parts = String(html).split(/<(?:strong|b)>(.*?)<\/(?:strong|b)>/i), moves = [], rest = [];
+  if (parts[0] && stripHtml(parts[0])) rest.push(stripHtml(parts[0]));
+  for (let i = 1; i < parts.length; i += 2) {
+    const h = stripHtml(parts[i]) || '', body = stripHtml(parts[i + 1] || '') || '', m = POWER.exec(h);
+    if (m && m[2]) moves.push({ kind: 'power', label: m[1], name: m[2].trim(), text: body });
+    else rest.push([h, body].filter(Boolean).join('\n'));
+  }
+  return { moves, rest: rest.join('\n').trim() || null };
+}
+
 // Rules text and stats for the card detail view, from a product's extendedData.
+// Pokémon cards also get their abilities and attacks as moves (the app's format, see js/card-symbols.js).
 function detailsOf(p) {
-  const x = ext(p), attacks = Object.keys(x).filter(k => /^Attack \d/.test(k)).sort().map(k => stripHtml(x[k]));
+  const x = ext(p), atk = Object.keys(x).filter(k => /^Attack \d/.test(k)).sort((a, b) => parseInt(a.slice(7), 10) - parseInt(b.slice(7), 10));
+  const raw = x.CardText || x.Description || x['Card Text'] || null;
+  const pw = atk.length || POWER.test(stripHtml((/<(?:strong|b)>(.*?)<\/(?:strong|b)>/i.exec(raw || '') || [])[1] || '') || '') ? powersOf(raw) : null;
+  const moves = pw ? [...pw.moves, ...atk.map(k => attackOf(x[k])).filter(Boolean)] : [];
   return {
-    text: stripHtml(x.CardText || x.Description || x['Card Text'] || null),
+    text: pw ? pw.rest : stripHtml(raw),
+    moves: moves.length ? moves : null,
     flavor: stripHtml(x.FlavorText || x['Flavor Text'] || null),
-    hp: x.HP || null, stage: x.Stage || null, attacks: attacks.length ? attacks : null,
+    hp: x.HP || null, stage: x.Stage || null,
     weakness: x.Weakness || null, resistance: x.Resistance || null, retreat: x.RetreatCost || null,
     cost: x.Cost || x['Mana Cost'] || x.ManaCost || null, attribute: x.Attribute || x.Color || null,
     artist: x.Artist || x.Illustrator || null,
@@ -73,4 +112,4 @@ const priceRows = (list, keep, day) => list.filter(r => r && keep.has(r.productI
   market: r.marketPrice, low: r.lowPrice, mid: r.midPrice, high: r.highPrice, direct_low: r.directLowPrice,
 }));
 
-module.exports = { BASE, lastUpdated, groups, products, prices, image, ext, isCard, cardRow, detailsOf, priceRows, gameOf };
+module.exports = { attackOf, powersOf, BASE, lastUpdated, groups, products, prices, image, ext, isCard, cardRow, detailsOf, priceRows, gameOf };
