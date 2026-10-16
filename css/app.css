@@ -87,7 +87,7 @@ dialog{max-height:92vh;overflow:auto}
 @keyframes spin{from{transform:rotateY(-540deg) scale(.3);opacity:0}to{transform:rotateY(0) scale(1);opacity:1}}
 @media(prefers-reduced-motion:reduce){.vimg{animation:none}}
 .chip{display:inline-block;border:1px solid var(--line);background:var(--sleeve);border-radius:20px;padding:1px 10px;font-size:12px;margin-right:6px}
-.ms{display:inline-block;vertical-align:-.22em;margin:0 1px;line-height:0}.ms svg{display:block}
+.ms{display:inline-block;vertical-align:-.22em;margin:0 1px;line-height:0}.ms svg,.ms .msi{display:block;width:1.15em;height:1.15em}
 .txt{white-space:pre-line;margin:12px 0 0;padding:10px 12px;border-left:3px solid var(--acc);background:var(--sleeve);border-radius:0 8px 8px 0;font-size:14px}
 #dView{max-width:1000px;padding:0;overflow:hidden}
 .vwrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);max-height:92vh}

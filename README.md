@@ -34,11 +34,11 @@ The page is plain HTML, CSS and classic `<script>` files (no build step). The sc
 | `js/main.js` | Sidebar, navigation and filter wiring; first render |
 | `js/import.js` | CSV import |
 | `js/customizer.js` | Customize (theme) panel |
-| `js/listings.js` | Marketplace listings modal |
 | `js/ios-preview.js` | iOS device preview |
 | `js/nav-wheel.js` | Sidebar scroll wheel |
 | `js/owner-gate.js` | Owner password gate (only on a Tradéx server) |
 | `css/*.css` | Styles for the app and each panel |
+| `server/backfill.js` | Earlier price history for newly owned cards, from TCGCSV's daily archives |
 | `server/api.js` | The page's `/api/*` endpoints: search, prints, enrich, prices, history |
 | `server/catalog.js` | Card lookups: Supabase card database first, live game databases as fallback |
 | `server/ingest.js` | Nightly card database and price load from TCGCSV |
@@ -57,6 +57,7 @@ The page is plain HTML, CSS and classic `<script>` files (no build step). The sc
 How it fits together:
 - Each night (TCGCSV publishes around 20:00 UTC) the server copies the card list and prices into Supabase: `catalog_sets`, `catalog_cards`, `catalog_prices`. Sets whose card list hasn't changed only get new prices. A full load is about two requests per set, well under TCGCSV's 10,000 a day.
 - `price_history` gets one row per day for every card someone owns (`TX_HISTORY=all` keeps every card; that grows by roughly 300,000 rows a day).
+- Earlier history: when someone starts owning a card, `server/backfill.js` fills in its prices for each of the last 30 days and one a week back to a year from TCGCSV's daily price archives (7-Zip files, opened with the `7z-wasm` package, the server's only dependency). It runs after the nightly load and when a chart asks for a card with little history.
 - Search (`/api/search`) runs in Postgres (`search_catalog`). Until the database is loaded, or when it has no match, Magic, Pokémon and Yu-Gi-Oh! searches go live to Scryfall, the Pokémon TCG API and YGOPRODeck.
 - Card details from those sites are cached in `card_details` for a week.
 - In the page, cards are linked to a TCGplayer printing (`src.tcg`, and `src.sub` for the price type such as Holofoil). Linked cards get today's price on load and draw their price history from the server.

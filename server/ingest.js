@@ -109,14 +109,15 @@ function run(opt = {}) {
 // Checks every hour; loads once TCGCSV has published a new daily build (it updates around 20:00 UTC).
 function schedule() {
   if (!db.writable() || process.env.TX_CATALOG_SCHEDULE === 'off') return null;
-  const tick = () => run().catch(e => log('run failed:', e.message));
+  // After the nightly load, cards someone started owning get their earlier price history (see backfill.js).
+  const tick = () => run().catch(e => log('run failed:', e.message)).then(() => require('./backfill').run());
   const t = setInterval(tick, 36e5);
   t.unref();
   setTimeout(tick, 60e3).unref();
   return t;
 }
 
-module.exports = { run, schedule, ingestGame };
+module.exports = { run, schedule, ingestGame, selectAll, getMeta, setMeta, trackedIds };
 
 if (require.main === module) {
   run({ force: process.argv.includes('--force'), always: true }).then(s => { console.log(JSON.stringify(s, null, 2)); process.exit(0); })

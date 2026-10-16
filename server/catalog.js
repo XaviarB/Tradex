@@ -228,7 +228,12 @@ async function history(items, days = 365) {
 async function status() {
   const out = { catalog: db.readable(), writer: db.writable(), games: GAMES.length };
   if (db.writable()) {
-    try { const r = await db.select('catalog_meta', 'select=value&key=eq.last_run'); out.lastRun = r && r[0] ? r[0].value : null; }
+    try {
+      const r = await db.select('catalog_meta', 'select=key,value&key=in.(last_run,backfill)'), m = k => (r.find(x => x.key === k) || {}).value || null;
+      out.lastRun = m('last_run');
+      const b = m('backfill');
+      out.history = b ? { at: b.at, cards: (b.ids || []).length, last: b.last } : null;
+    }
     catch (e) { out.error = e.message; }
   }
   return out;

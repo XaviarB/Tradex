@@ -2,6 +2,16 @@
   "name": "tradex",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "start": "node server.js", "bundle": "node scripts/bundle.js", "ingest": "node server/ingest.js", "test": "node --test test/*.test.js" },
-  "engines": { "node": ">=18" }
+  "scripts": {
+    "start": "node server.js",
+    "bundle": "node scripts/bundle.js",
+    "ingest": "node server/ingest.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "7z-wasm": "1.2.0"
+  }
 }
