@@ -52,6 +52,8 @@ The page is plain HTML, CSS and classic `<script>` files (no build step). The sc
 | [TCGCSV](https://tcgcsv.com) | Every card and today's TCGplayer market, low, mid and high price for every TCGplayer game (Magic, Pokémon, Yu-Gi-Oh!, One Piece, Lorcana, Flesh and Blood, Digimon, Dragon Ball, Star Wars Unlimited, Riftbound, Gundam and more) | A free daily copy of TCGplayer's catalog. TCGplayer's own API takes no new developers. |
 | [Scryfall](https://scryfall.com/docs/api) | Magic rules text, artists, Cardmarket (EUR) prices | Free, and links each card to its TCGplayer product. |
 | [Pokémon TCG API](https://pokemontcg.io) | Pokémon attacks, abilities, artists, Cardmarket prices | Free; set `POKEMONTCG_API_KEY` for a higher rate limit. |
+| [eBay Browse API](https://developer.ebay.com) | eBay comp: median asking price of matching Buy It Now listings (raw, or the card's grader and grade) | Free developer app; set `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET`. eBay has no free sold-price data. |
+| [PriceCharting API](https://www.pricecharting.com/api-documentation) | PriceCharting comp: ungraded or graded sold price | Needs a PriceCharting subscription; set `PRICECHARTING_TOKEN`. |
 | [YGOPRODeck](https://ygoprodeck.com/api-guide/) | Yu-Gi-Oh! card text, every printing, Cardmarket and eBay prices | Free. |
 
 How it fits together:
@@ -67,4 +69,4 @@ Setup:
 2. On the server, set `SUPABASE_SERVICE_ROLE_KEY` to the project's secret key (Supabase → Project Settings → API Keys). It stays on the server; the page never sees it.
 3. Restart. The first load starts a minute later and takes a while; `GET /api/catalog/status` shows the last run.
 
-Optional settings: `TX_CATALOG_GAMES` (comma list such as `magic,pokemon,lorcana`, or `all`), `TX_HISTORY=all`, `TX_CATALOG_SCHEDULE=off`, `TX_ADMIN_TOKEN` (lets `POST /api/catalog/ingest` with an `x-admin-token` header start a load by hand), `POKEMONTCG_API_KEY`.
+Optional settings: `TX_CATALOG_GAMES` (comma list such as `magic,pokemon,lorcana`, or `all`), `TX_HISTORY=all`, `TX_CATALOG_SCHEDULE=off`, `TX_ADMIN_TOKEN` (lets `POST /api/catalog/ingest` with an `x-admin-token` header start a load by hand), `POKEMONTCG_API_KEY`, `EBAY_CLIENT_ID` + `EBAY_CLIENT_SECRET`, `PRICECHARTING_TOKEN`. Without the eBay or PriceCharting keys those two boxes show a search link instead of a price.

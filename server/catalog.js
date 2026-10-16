@@ -6,6 +6,8 @@ const tcgcsv = require('./sources/tcgcsv');
 const scryfall = require('./sources/scryfall');
 const pokemontcg = require('./sources/pokemontcg');
 const ygoprodeck = require('./sources/ygoprodeck');
+const ebay = require('./sources/ebay');
+const pricecharting = require('./sources/pricecharting');
 const { gameOf, subFor, fold, GAMES } = require('./games');
 const { mapLimit } = require('./http');
 
@@ -188,6 +190,13 @@ async function enrich(cards, { withDetails = false } = {}) {
           if (!out.img && d.img2) out.img = d.img2;
           out.sources = [...out.sources, ...(d.extraSources || [])];
         }
+        // eBay and PriceCharting comps for the card's grade (or ungraded), when the server has their keys.
+        const who = { name: m.name, set: m.set, num: m.num || c.num, grader: c.grader, grade: c.grade };
+        const comps = (await Promise.allSettled([ebay.comp(who), pricecharting.comp(who)])).map((r, i) => {
+          if (r.status === 'rejected') log((i ? 'PriceCharting' : 'eBay') + ' comp failed:', r.reason.message);
+          return r.status === 'fulfilled' ? r.value : null;
+        }).filter(Boolean);
+        if (comps.length) out.sources = [...out.sources.filter(x => !comps.some(k => k.site === x.site)), ...comps];
       }
       return strip(out);
     } catch (e) { log('enrich failed for', c.name, e.message); return null; }
@@ -226,7 +235,7 @@ async function history(items, days = 365) {
 }
 
 async function status() {
-  const out = { catalog: db.readable(), writer: db.writable(), games: GAMES.length };
+  const out = { catalog: db.readable(), writer: db.writable(), games: GAMES.length, comps: { ebay: ebay.on(), pricecharting: pricecharting.on() } };
   if (db.writable()) {
     try {
       const r = await db.select('catalog_meta', 'select=key,value&key=in.(last_run,backfill)'), m = k => (r.find(x => x.key === k) || {}).value || null;

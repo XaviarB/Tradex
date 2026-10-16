@@ -76,6 +76,9 @@ function start(opt = {}) {
     calls.push('GET ' + p + u.search);
     let m;
     if ((m = /^\/tcgcsv\/archive\/tcgplayer\/prices-(\d{4}-\d{2}-\d{2})\.ppmd\.7z$/.exec(p))) { if (!archives[m[1]]) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'Content-Type': 'application/x-7z-compressed' }); return res.end(Buffer.from(archives[m[1]])); }
+    if (p === '/ebay/identity/v1/oauth2/token') return req.headers.authorization === 'Basic ' + Buffer.from('ebay-id:ebay-secret').toString('base64') ? json(res, 200, { access_token: 'tok', expires_in: 7200 }) : json(res, 401, { error: 'invalid_client' });
+    if (p === '/ebay/buy/browse/v1/item_summary/search') { if (req.headers.authorization !== 'Bearer tok') return json(res, 401, {}); const w = u.searchParams.get('q').toLowerCase().split(' ')[0]; return json(res, 200, { itemSummaries: F.ebay.filter(x => x.title.toLowerCase().includes(w)) }); }
+    if (p === '/pricecharting/api/products') { if (u.searchParams.get('t') !== 'pc-token') return json(res, 401, { status: 'error' }); const w = u.searchParams.get('q').toLowerCase().split(' ')[0]; return json(res, 200, { status: 'success', products: F.pricecharting.filter(x => x['product-name'].toLowerCase().includes(w)) }); }
     if (p === '/tcgcsv/last-updated.txt') { res.writeHead(200); return res.end(tcgcsvBuild); }
     if ((m = /^\/tcgcsv\/tcgplayer\/(\d+)\/groups$/.exec(p))) return json(res, 200, { success: true, errors: [], results: F.groups[m[1]] || [] });
     if ((m = /^\/tcgcsv\/tcgplayer\/(\d+)\/(\d+)\/products$/.exec(p))) return json(res, 200, { success: true, errors: [], results: F.products[m[2]] || [] });
@@ -91,7 +94,7 @@ function start(opt = {}) {
     const base = 'http://127.0.0.1:' + server.address().port;
     resolve({
       base, tables, calls, setBuild: b => { tcgcsvBuild = b; }, setArchive: (day, bytes) => { archives[day] = bytes; }, setPriceFactor: f => { opt.priceFactor = f; },
-      env: { TCGCSV_BASE: base + '/tcgcsv', SCRYFALL_BASE: base + '/scryfall', POKEMONTCG_BASE: base + '/pokemontcg', YGOPRODECK_BASE: base + '/ygoprodeck', SUPABASE_URL: base + '/supabase' },
+      env: { TCGCSV_BASE: base + '/tcgcsv', SCRYFALL_BASE: base + '/scryfall', POKEMONTCG_BASE: base + '/pokemontcg', YGOPRODECK_BASE: base + '/ygoprodeck', SUPABASE_URL: base + '/supabase', EBAY_API_BASE: base + '/ebay', PRICECHARTING_BASE: base + '/pricecharting' },
       close: () => new Promise(r => server.close(r)),
     });
   }));

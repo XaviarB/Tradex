@@ -9,6 +9,19 @@ const prod = (productId, categoryId, groupId, name, x) => ({
 const price = (productId, subTypeName, marketPrice, lowPrice) => ({ productId, lowPrice, midPrice: marketPrice, highPrice: marketPrice * 3, marketPrice, directLowPrice: null, subTypeName });
 
 module.exports = {
+  ebay: [
+    { title: 'Charizard 4/102 Base Set Holo Rare Pokemon Card LP', price: { value: '420.00', currency: 'USD' } },
+    { title: 'Pokemon Charizard Base Set 004/102 Holo NM', price: { value: '460.00', currency: 'USD' } },
+    { title: 'Charizard 4/102 Base Set Unlimited Holo', price: { value: '400.00', currency: 'USD' } },
+    { title: 'PSA 9 Charizard 4/102 Base Set Holo', price: { value: '3200.00', currency: 'USD' } },
+    { title: 'PSA 10 Charizard 4/102 Base Set Holo', price: { value: '12500.00', currency: 'USD' } },
+    { title: 'Charizard Custom Proxy 4/102', price: { value: '5.00', currency: 'USD' } },
+    { title: 'Charizard ex 199/165 SV 151', price: { value: '270.00', currency: 'USD' } },
+  ],
+  pricecharting: [
+    { id: '1', 'product-name': 'Charizard #4', 'console-name': 'Pokemon Base Set', 'loose-price': 41500, 'cib-price': 120000, 'new-price': 180000, 'graded-price': 310000, 'box-only-price': 520000, 'manual-only-price': 1250000 },
+    { id: '2', 'product-name': 'Charizard ex #199', 'console-name': 'Pokemon Scarlet & Violet 151', 'loose-price': 27000 },
+  ],
   groups: {
     3: [{ groupId: 604, name: 'Base Set', abbreviation: 'BS', isSupplemental: false, publishedOn: '1999-01-09T00:00:00', modifiedOn: '2026-02-17T00:00:00', categoryId: 3 },
       { groupId: 23237, name: 'SV: Scarlet & Violet 151', abbreviation: 'MEW', isSupplemental: false, publishedOn: '2023-09-22T00:00:00', modifiedOn: '2026-03-01T00:00:00', categoryId: 3 }],
