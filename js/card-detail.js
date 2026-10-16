@@ -14,8 +14,11 @@ const CKEY={'Near Mint':'near_mint','Lightly Played':'lightly_played','Moderatel
 function adjSrc(c,x,m,ab){const bc=x.byCond,lb=String(x.label||'');if(!bc||typeof bc!=='object'||c.grader)return{...x,price:x.price*m,label:lb+ab};const k=CKEY[c.cond],ex=bc[k]??(k==='near_mint'?bc.mint:undefined);if(ex!=null&&isFinite(+ex))return{...x,price:+ex,label:lb+ab,est:false};return{...x,price:(+(bc.near_mint??bc.mint??x.price))*m,label:lb+ab,est:true}}
 /* on a Tradéx server: quietly fetch fresh live prices when a card is opened (at most once an hour per card) */
 async function autoPrice(c){if(!window.TX_SERVER||typeof OWNER==='undefined'||!OWNER||!c.game)return;if(c.srcAt&&Date.now()-c.srcAt<36e5)return;
- try{const r=await fetch('/api/enrich',{method:'POST',headers:{'content-type':'application/json','x-owner':localStorage.getItem('tradex_pw')||''},body:JSON.stringify({cards:[{game:c.game,name:c.name,set:c.set,num:c.num,finish:c.finish,sid:c.src&&c.src.id&&c.game==='Magic'?c.src.id:undefined}]})}).then(x=>x.ok?x.json():Promise.reject()),e=(r.cards||[])[0];
- if(!e||!e.sources||!e.sources.length)return;c.sources=e.sources;c.srcAt=Date.now();if(e.img&&!c.img)c.img=e.img;save();if(vid===c.id&&$('#mp'))$('#mp').innerHTML=mpHTML(c)}catch(x){}}
+ try{const r=await fetch('/api/enrich',{method:'POST',headers:{'content-type':'application/json','x-owner':localStorage.getItem('tradex_pw')||''},body:JSON.stringify({cards:[{game:c.game,name:c.name,set:c.set,num:c.num,finish:c.finish,tcg:c.src&&c.src.tcg,sub:c.src&&c.src.sub}]})}).then(x=>x.ok?x.json():Promise.reject()),e=(r.cards||[])[0];
+ if(!e)return;mkFill(c,e);c.srcAt=Date.now();save();if(vid===c.id&&$('#mp'))$('#mp').innerHTML=mpHTML(c)}catch(x){}}
+/* copies what the server found for a card (its TCGplayer printing, prices, rules text, picture) onto it, keeping what's already set */
+function mkFill(c,e){if(e.tcg)c.src={...(c.src||{}),game:e.game,tcg:e.tcg,sub:e.sub};if(e.sources&&e.sources.length)c.sources=e.sources;
+ ['img','type','cost','text','flavor','moves','artist'].forEach(k=>{if(e[k]&&!(Array.isArray(c[k])?c[k].length:c[k]))c[k]=e[k]})}
 function mpHTML(c){const m=c.grader?1:(CMULT[c.cond]??1),ab=!c.grader&&CABB[c.cond]?' · '+CABB[c.cond]:'',src=(c.sources||[]).map(x=>adjSrc(c,x,m,ab)),box=(site,x,extra)=>`<a class="pc" data-ls="${esc(site)}" href="${esc(mkUrl(site,c))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><small>${esc(site)}${x?' · '+esc(x.label)+(x.cur==='EUR'?' · converted':''):''}</small><b${x?'':' style="color:var(--mut)"'}>${x?(x.est?'~':'')+mon(x):'—'}</b><small style="color:var(--acc)">${x?'View listings ↗':'Search ↗'}</small></a>`;
  const first=MKS.map(m=>src.find(x=>x.site===m)),rest=src.filter(x=>!first.includes(x)).slice(0,4),rf='';
  return `<div class="pr">${MKS.map((m,i)=>box(m,first[i])).join('')}${rest.map(x=>box(x.site,x)).join('')}</div>${rf}`}
@@ -56,7 +59,7 @@ function panel(c){const e=ev(c);const p=pct(c),free=S.binders.filter(b=>isB(b)&&
  <div class="dx-no">No. ${num}</div>
  <div class="dx-more dx-ctx"><h4 class="cch">CARD CONTEXT<span id="rfm"></span>${typeof OWNER!=='undefined'&&OWNER?`<button class="rfb" data-mkr="${c.id}" title="Refresh market prices" aria-label="Refresh market prices">↻</button>`:''}</h4><div id="mp">${mpHTML(c)}</div></div>
  </section><section class="dx-more">
- <h4>PRICE HISTORY</h4><div class="box">${c.hist.length>0?chart(c):''}</div>
+ <h4 class="cch">PRICE HISTORY${typeof rangeBar==='function'?rangeBar():''}</h4><div class="box" id="phb">${typeof cardChart==='function'?cardChart(c):c.hist.length>0?chart(c):''}</div>
  <h4>DETAILS</h4><div class="box"><div class="dg">${det.map(([k,v])=>`<div><span>${k}</span><b>${ico(esc(v),c.game)||'—'}</b></div>`).join('')}</div></div>
  </section></div></div>`}
 let dxA=0,dxT='info';const DXK=[['hw','Handheld'],['gba','Pixel'],['card','Collector card'],['std','Console']];

@@ -1,6 +1,8 @@
 /* Tradéx: Shared helpers and constants: DOM lookup, games, rarities, conditions, finishes, formatting. */
 const $=s=>document.querySelector(s);
-const COL={Pokémon:'#c9472f',Magic:'#3b5b8c','Yu-Gi-Oh!':'#6b4a8a',Sports:'#0e6b5c',Other:'#5f6b67','One Piece':'#b8862b'};
+const COL={Pokémon:'#c9472f',Magic:'#3b5b8c','Yu-Gi-Oh!':'#6b4a8a',Sports:'#0e6b5c',Other:'#5f6b67','One Piece':'#b8862b',Lorcana:'#2d5f9a','Flesh and Blood':'#8a2f2f',Digimon:'#2f7fb8','Dragon Ball Fusion World':'#d0782b','Star Wars Unlimited':'#3d4a5c',Riftbound:'#4a3f8a',Gundam:'#5c6f7d'};
+/* Games in the Tradéx server's card database (server/games.js), in menu order. */
+const TXG=['Magic','Pokémon','Yu-Gi-Oh!','One Piece','Lorcana','Flesh and Blood','Digimon','Dragon Ball Fusion World','Star Wars Unlimited','Riftbound','Gundam'];
 const RAR=['Common','Uncommon','Rare','Holo Rare','Ultra Rare','Secret Rare'];
 const GRADERS=['PSA','BGS','BVG','CGC','SGC','TAG','HGA','ACE','AGS','CSG','GMA','ISA','KSA','Ludex','MNT','PCA','Other'];
 const CON=['Near Mint','Lightly Played','Moderately Played','Heavily Played','Damaged'];
