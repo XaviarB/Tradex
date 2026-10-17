@@ -9,7 +9,7 @@ const pk=c=>c?`<button class="card pk" data-id="${c.id}" title="${esc(c.name)} �
 function render(){
  if(!isB(cur)&&cur!=='dash'&&cur!=='coll')cur='dash';
  const bin=isB(cur),nv=(v,l)=>`<button data-v="${esc(v)}" class="${cur===v?'on':''}">${esc(l)}</button>`;
- $('#nav').innerHTML=nv('dash','Dashboard')+nv('coll','Collection')+'<small>BINDERS</small>'+(()=>{const gs={};S.binders.filter(isB).forEach(b=>{const g=(S.bg||{})[b]||'Other';(gs[g]=gs[g]||[]).push(b)});return Object.keys(gs).sort().map(g=>`<small class="bgh">${esc(g)}</small>`+gs[g].map(b=>nv(b,b)).join('')).join('')})()+'<button id="nb">+ New binder</button>';
+ $('#nav').innerHTML=nv('dash','Dashboard')+nv('coll','Collection')+'<a class="learn" href="learn">📖 Learn the games</a>'+'<small>BINDERS</small>'+(()=>{const gs={};S.binders.filter(isB).forEach(b=>{const g=(S.bg||{})[b]||'Other';(gs[g]=gs[g]||[]).push(b)});return Object.keys(gs).sort().map(g=>`<small class="bgh">${esc(g)}</small>`+gs[g].map(b=>nv(b,b)).join('')).join('')})()+'<button id="nb">+ New binder</button>';
  $('#title').textContent=bin?cur:cur==='dash'?'Dashboard':'Collection';$('#crumb').textContent=bin?'Binders ›':'';
  $('#ft').hidden=$('#q').hidden=cur==='dash';
  {const gs=[...new Set(S.cards.filter(c=>!bin||c.binders.includes(cur)).map(c=>c.game))].sort(),cg=$('#fg').value,n=g=>S.cards.filter(c=>(!bin||c.binders.includes(cur))&&(!g||c.game===g)).reduce((a,c)=>a+c.qty,0);
