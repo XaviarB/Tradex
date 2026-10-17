@@ -32,8 +32,8 @@ http.createServer((req, res) => {
       res.end(data);
     });
   }
-  // Public privacy policy and terms, linked from Google's sign-in setup.
-  const legal = /^\/(privacy|terms)(\.html)?\/?$/.exec(req.url.split('?')[0]);
+  // Public privacy policy and terms (linked from Google's sign-in setup), and the Learn the games guides.
+  const legal = /^\/(privacy|terms|learn)(\.html)?\/?$/.exec(req.url.split('?')[0]);
   if (legal) {
     return fs.readFile(path.join(__dirname, legal[1] + '.html'), (err, data) => {
       if (err) { res.writeHead(404); return res.end('not found'); }

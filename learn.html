@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learn the games – Tradéx</title>
+<meta name="description" content="Plain-language guides to every trading card game in Tradéx: how to play, the rules people miss, and how to spot a fake card.">
+<meta name="theme-color" content="#141a18">
+<style>
+:root{--bg:#141a18;--card:#1c2422;--fg:#e8ece9;--mut:#a9b5af;--acc:#4cc3a9;--line:#2f3a36;--ok:#7fd6a0;--warn:#f0b35a;--bad:#ff8a7a;--fs:17px}
+@media (prefers-color-scheme: light){:root{--bg:#faf9f5;--card:#fff;--fg:#141413;--mut:#53585a;--acc:#13705d;--line:#dcd9cf;--ok:#1d6b3a;--warn:#8a5300;--bad:#b3261e}}
+:root[data-size=big]{--fs:20px}:root[data-size=huge]{--fs:23px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--acc)}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:6px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:12px;z-index:9;background:var(--card);padding:8px 12px;border-radius:8px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px}
+.tin{max-width:820px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.tin .home{font-weight:700;text-decoration:none;font-size:.95em}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+button,.btn{font:inherit;font-size:.85em;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;min-height:40px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+button[aria-pressed=true]{border-color:var(--acc);color:var(--acc)}
+main{max-width:820px;margin:0 auto;padding:24px 16px calc(64px + env(safe-area-inset-bottom,0px))}
+h1{font-size:1.8em;line-height:1.2;margin:8px 0 6px}h2{font-size:1.35em;line-height:1.25;margin:0 0 6px}h3{font-size:1.08em;margin:28px 0 8px;scroll-margin-top:90px}
+.lead{color:var(--mut);margin:0 0 18px}
+.search{display:block;width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);min-height:48px}
+.grid{list-style:none;padding:0;margin:18px 0 8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.grid a{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--fg);text-decoration:none;min-height:64px}
+.grid a:hover{border-color:var(--acc)}.grid b{display:block}.grid small{color:var(--mut);font-size:.8em;line-height:1.3;display:block}
+.dot{flex:none;width:14px;height:14px;border-radius:50%;background:var(--c,#5f6b67)}
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:18px 0 0}
+.quick a{padding:12px 14px;border-radius:12px;border:1px dashed var(--line);text-decoration:none;color:var(--fg)}.quick a b{color:var(--acc)}
+article.game,section.box{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c,var(--acc));border-radius:16px;padding:20px 18px;margin:28px 0;scroll-margin-top:80px}
+.ghead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0;list-style:none}.jump a{font-size:.85em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);text-decoration:none}
+dl.glance{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:14px 0 0}dl.glance dt{color:var(--mut)}dl.glance dd{margin:0}
+@media (max-width:520px){dl.glance{grid-template-columns:1fr}dl.glance dd{margin-bottom:6px}}
+ol.steps{padding-left:1.4em}ol.steps li{margin:0 0 8px;padding-left:4px}
+ul{padding-left:1.3em}li{margin:0 0 6px}
+details{border-top:1px solid var(--line);padding:4px 0}details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;padding:10px 0;font-weight:600;min-height:44px;list-style-position:outside;margin-left:1.1em}
+details p{margin:0 0 12px}
+ul.check{list-style:none;padding:0}ul.check li{position:relative;padding-left:1.8em}ul.check li::before{content:"✔";position:absolute;left:0;color:var(--ok);font-weight:700}
+ul.red li::marker{color:var(--bad)}
+.note{border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);margin:14px 0}
+dl.words dt{font-weight:700;margin-top:10px}dl.words dd{margin:0}
+.src{font-size:.85em;color:var(--mut);margin-top:22px}
+.empty{color:var(--mut);padding:12px 0}
+h2[tabindex]:focus{outline:none}
+.searching .grid,.searching .quick{display:none}
+.back{display:inline-block;margin:0 0 12px;font-size:.9em}
+.solo .grid,.solo .quick,.solo .intro,.solo #general,.solo #buying{display:none}
+.solo .back{display:inline-block}.back{display:none}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media print{header.top,.tools,.search,.jump{display:none}article.game,section.box{break-inside:avoid-page}}
+</style></head><body>
+<a class="skip" href="#main">Skip to the guides</a>
+<header class="top"><div class="tin">
+ <a class="home" href="/">← Tradéx</a>
+ <div class="tools" role="group" aria-label="Reading options">
+  <button type="button" id="tsize" aria-label="Make the text bigger">A+ Bigger text</button>
+  <button type="button" id="speak" hidden>🔊 Listen</button>
+ </div>
+</div></header>
+
+<main id="main">
+<div class="intro">
+<h1>Learn the games</h1>
+<p class="lead">Short, plain guides to every card game in Tradéx. Pick a game to learn how to play, the rules people often miss, and how to tell a real card from a fake.</p>
+<label for="find" class="skip">Search the guides</label>
+<input class="search" id="find" type="search" placeholder="Search, for example “fake”, “prize cards” or “Lorcana”" autocomplete="off" hidden>
+</div>
+
+<nav aria-label="Games">
+<ul class="grid" id="games">
+ <li><a href="#pokemon" style="--c:#c9472f"><span class="dot" aria-hidden="true"></span><span><b>Pokémon</b><small>Knock out Pokémon, take 6 prize cards</small></span></a></li>
+ <li><a href="#magic" style="--c:#3b5b8c"><span class="dot" aria-hidden="true"></span><span><b>Magic: The Gathering</b><small>Cast spells, bring your opponent to 0 life</small></span></a></li>
+ <li><a href="#yugioh" style="--c:#6b4a8a"><span class="dot" aria-hidden="true"></span><span><b>Yu-Gi-Oh!</b><small>Summon monsters, drop your opponent to 0 LP</small></span></a></li>
+ <li><a href="#onepiece" style="--c:#b8862b"><span class="dot" aria-hidden="true"></span><span><b>One Piece</b><small>Lead a pirate crew, break through Life cards</small></span></a></li>
+ <li><a href="#lorcana" style="--c:#2d5f9a"><span class="dot" aria-hidden="true"></span><span><b>Disney Lorcana</b><small>Quest with Disney characters to 20 lore</small></span></a></li>
+ <li><a href="#fab" style="--c:#8a2f2f"><span class="dot" aria-hidden="true"></span><span><b>Flesh and Blood</b><small>Hero vs hero, your hand is attack and defense</small></span></a></li>
+ <li><a href="#digimon" style="--c:#2f7fb8"><span class="dot" aria-hidden="true"></span><span><b>Digimon</b><small>Digivolve and break the Security stack</small></span></a></li>
+ <li><a href="#dbfw" style="--c:#d0782b"><span class="dot" aria-hidden="true"></span><span><b>Dragon Ball Fusion World</b><small>Leader battles with combos, 8 Life</small></span></a></li>
+ <li><a href="#swu" style="--c:#3d4a5c"><span class="dot" aria-hidden="true"></span><span><b>Star Wars: Unlimited</b><small>Ground and space battles, destroy the base</small></span></a></li>
+ <li><a href="#riftbound" style="--c:#4a3f8a"><span class="dot" aria-hidden="true"></span><span><b>Riftbound</b><small>League of Legends, first to 8 points</small></span></a></li>
+ <li><a href="#gundam" style="--c:#5c6f7d"><span class="dot" aria-hidden="true"></span><span><b>Gundam Card Game</b><small>Mobile suits and pilots, break 6 shields</small></span></a></li>
+</ul>
+</nav>
+<div class="quick">
+ <a href="#general"><b>Is my card fake?</b><br>Quick checks that work for any game</a>
+ <a href="#buying"><b>Buying safely</b><br>How to avoid fakes before you pay</a>
+</div>
+<p class="empty" id="none" hidden>Nothing matches that search. Try a shorter word, like “fake” or a game’s name.</p>
+
+<!-- ================= POKÉMON ================= -->
+<article class="game" id="pokemon" style="--c:#c9472f" aria-labelledby="pokemon-h">
+<a class="back" href="#">← All games</a>
+<div class="ghead"><h2 id="pokemon-h">Pokémon Trading Card Game</h2></div>
+<p>Two players each build a team of Pokémon and battle. Your Pokémon attack your opponent’s Pokémon. Each time you knock one out, you take a prize card. Take all your prize cards first and you win.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#pokemon-play">How to play</a></li><li><a href="#pokemon-rules">Rules people miss</a></li><li><a href="#pokemon-fake">Spot a fake</a></li><li><a href="#pokemon-words">Words to know</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2</dd>
+ <dt>Deck</dt><dd>Exactly 60 cards. No more than 4 cards with the same name (Basic Energy is the exception: as many as you like).</dd>
+ <dt>You win when</dt><dd>You take all 6 of your prize cards, <em>or</em> your opponent has no Pokémon left in play, <em>or</em> your opponent has to draw at the start of their turn and their deck is empty.</dd>
+ <dt>Easiest way to start</dt><dd>Buy a ready-made “Battle Deck” or “League Battle Deck”, or play the free Pokémon TCG Live app to learn.</dd>
+</dl>
+
+<h3 id="pokemon-play">How to play</h3>
+<p><b>The three kinds of cards</b></p>
+<ul>
+ <li><b>Pokémon</b> fight. <b>Basic</b> Pokémon can be played straight from your hand. <b>Stage 1</b> and <b>Stage 2</b> Pokémon are evolutions: you put them on top of the Pokémon they evolve from.</li>
+ <li><b>Energy</b> powers attacks. Each attack shows energy symbols. Your Pokémon needs that energy attached to use it.</li>
+ <li><b>Trainers</b> help you: <b>Items</b> (play as many as you like), <b>Supporters</b> (only one per turn), <b>Stadiums</b> (one stays in play for both players) and <b>Pokémon Tools</b> (attach to a Pokémon).</li>
+</ul>
+<p><b>Getting ready</b></p>
+<ol class="steps">
+ <li>Shake hands, then flip a coin. The winner chooses who goes first.</li>
+ <li>Shuffle and draw 7 cards.</li>
+ <li>Put one <b>Basic</b> Pokémon face down as your <b>Active</b> Pokémon (the one fighting). You may put up to 5 more Basics face down on your <b>Bench</b> (the waiting line).</li>
+ <li>No Basic Pokémon in your hand? Show your hand, shuffle it back, and draw 7 again. This is a <b>mulligan</b>. Your opponent may draw one extra card for each time you did it.</li>
+ <li>Put the top 6 cards of your deck face down to the side. These are your <b>prize cards</b>.</li>
+ <li>Both players flip their Pokémon face up. Play!</li>
+</ol>
+<p><b>On your turn, in this order</b></p>
+<ol class="steps">
+ <li><b>Draw</b> one card. (You must.)</li>
+ <li><b>Do any of these</b>, in any order:
+  <ul>
+   <li>Put Basic Pokémon on your Bench (max 5 on the Bench).</li>
+   <li>Evolve Pokémon.</li>
+   <li>Attach <b>one</b> Energy card from your hand to one of your Pokémon. Only one per turn.</li>
+   <li>Play Trainer cards (only one Supporter and one Stadium per turn).</li>
+   <li><b>Retreat</b> your Active Pokémon once: discard energy from it equal to its retreat cost (shown at the bottom), then swap it with a Bench Pokémon.</li>
+   <li>Use Abilities written on your Pokémon.</li>
+  </ul></li>
+ <li><b>Attack</b> with your Active Pokémon. Attacking ends your turn.</li>
+</ol>
+<p><b>How damage works</b></p>
+<ul>
+ <li>Each Pokémon has <b>HP</b> (hit points) at the top right. Damage is tracked with counters: each counter is 10 damage.</li>
+ <li>When a Pokémon’s damage reaches its HP, it is <b>Knocked Out</b>. It and everything attached to it go to the discard pile. The attacker takes a prize card.</li>
+ <li><b>Weakness</b>: if the defender is weak to the attacker’s type, the damage is doubled. <b>Resistance</b>: usually 30 less damage.</li>
+ <li>If your Active Pokémon is Knocked Out, you must choose a new Active Pokémon from your Bench. If you can’t, you lose.</li>
+</ul>
+
+<h3 id="pokemon-rules">Rules people miss</h3>
+<details><summary>Can I attack on the very first turn?</summary><p>No, not if you go first. The player who goes first cannot attack on their first turn, and cannot play a Supporter card on that turn either. The second player can do both.</p></details>
+<details><summary>Can I evolve a Pokémon right away?</summary><p>No. You can’t evolve on your very first turn (either player), and you can’t evolve a Pokémon the same turn it was put into play. You also can’t evolve the same Pokémon twice in one turn, unless a card says otherwise.</p></details>
+<details><summary>Why did my opponent take 2 or 3 prize cards?</summary><p>Some strong Pokémon give up more prizes. A <b>Pokémon ex</b> or <b>Pokémon V</b> gives 2 prize cards when Knocked Out. A <b>VMAX</b> or a <b>Mega Evolution Pokémon ex</b> gives 3. The rule is printed on the card, so read it before you play it.</p></details>
+<details><summary>What are Special Conditions (Asleep, Burned and so on)?</summary><p>They only affect the Active Pokémon. Between turns they work like this:</p>
+<ul><li><b>Poisoned</b>: 1 damage counter (10) between every turn.</li>
+<li><b>Burned</b>: 2 damage counters (20), then flip a coin. Heads, it’s no longer Burned.</li>
+<li><b>Asleep</b>: can’t attack or retreat. Flip a coin between turns. Heads, it wakes up.</li>
+<li><b>Paralyzed</b>: can’t attack or retreat. It goes away at the end of its owner’s next turn.</li>
+<li><b>Confused</b>: flip a coin when you attack. Tails, the attack fails and it takes 3 damage counters (30).</li></ul>
+<p>Moving the Pokémon to the Bench or evolving it removes all Special Conditions. A Pokémon can be Poisoned and Burned at the same time, but Asleep, Paralyzed and Confused replace each other.</p></details>
+<details><summary>Does Weakness or Resistance count for Benched Pokémon?</summary><p>No. Damage to Benched Pokémon never applies Weakness or Resistance, unless the attack says it does.</p></details>
+<details><summary>How many special cards like ACE SPEC can I have?</summary><p>Only 1 ACE SPEC card in your whole deck, and only 1 Radiant Pokémon. These rules are printed on the card.</p></details>
+<details><summary>Which cards am I allowed to use in a tournament?</summary><p>Most events use the <b>Standard</b> format, which only allows recent cards. Look for the small letter in a box at the bottom left of the card (the <b>regulation mark</b>). Each year the official Pokémon site lists which letters are legal. <b>Expanded</b> allows older cards, back to the Black &amp; White series. Casual games at home can use any cards you both agree on.</p></details>
+<details><summary>My deck ran out. Did I lose?</summary><p>Only when you have to draw at the start of your turn and can’t. Running out from a card effect doesn’t make you lose right away.</p></details>
+
+<h3 id="pokemon-fake">Spot a fake Pokémon card</h3>
+<p>Fakes are common, especially Charizard, Pikachu, gold or “metal” cards, and cheap “packs” sold online. Compare against a card you know is real, or look the card up in Tradéx and check the picture.</p>
+<ul class="check">
+ <li><b>Spelling and accents.</b> Real cards always spell it “Pokémon” with the é. Look for typos, odd wording, or attack names that make no sense.</li>
+ <li><b>Font.</b> The HP number, attack names and text use a clean, even font. Fakes often use a thinner or wrong font, or text that is too bold.</li>
+ <li><b>Energy symbols.</b> They should be crisp, centered circles. Blurry, off-center or wrong-colored symbols are a red flag.</li>
+ <li><b>The back.</b> The blue swirl on the back should be deep and even. Fakes often look washed out, too purple or too light.</li>
+ <li><b>The light test.</b> Shine your phone flashlight through the card in a dark room. Real cards have a dark layer inside, so only a little soft light gets through. Many fakes glow brightly. Compare with a cheap real card.</li>
+ <li><b>Feel and finish.</b> Real cards are slightly flexible with a soft shine. Fakes are often too glossy, too thin, too stiff, or feel waxy.</li>
+ <li><b>Holo pattern.</b> On real holo cards the shine is only in certain places (usually the picture). Fakes often have shine all over, including the text box.</li>
+ <li><b>Set symbol and number.</b> The bottom of the card shows a set symbol and a number like 004/102. Check that this card really exists in that set, with the same picture. Tradéx search will show you.</li>
+ <li><b>Impossible numbers.</b> HP like 1000, or damage like 990, means it’s fake.</li>
+</ul>
+<ul class="red" aria-label="Warning signs">
+ <li>Gold or black “metal” cards sold cheaply are almost always fake. Real metal cards only came in a few expensive collector boxes.</li>
+ <li>Packs that are cheap, crinkly, loose in the wrapper or easy to peel open may be fake or resealed. Buy sealed product from trusted stores.</li>
+ <li>For graded cards in a case (a “slab”), type the certificate number into the grading company’s website and check the picture matches.</li>
+</ul>
+<div class="note"><b>Don’t rip a card to check it.</b> Some guides tear a card to see the inside layer. That destroys the card. Use the light test and compare instead.</div>
+
+<h3 id="pokemon-words">Words to know</h3>
+<dl class="words">
+ <dt>Active Pokémon</dt><dd>The one Pokémon that attacks and gets attacked.</dd>
+ <dt>Bench</dt><dd>Up to 5 Pokémon waiting to come in.</dd>
+ <dt>Prize cards</dt><dd>6 face-down cards. Take one each time you knock out a Pokémon (more for ex, V, VMAX and Mega ex).</dd>
+ <dt>Retreat</dt><dd>Swapping your Active Pokémon with a Bench one by discarding energy.</dd>
+ <dt>Knocked Out (KO)</dt><dd>When damage equals or beats a Pokémon’s HP.</dd>
+ <dt>Holo / Reverse Holo</dt><dd>Holo cards shine on the picture. Reverse holo cards shine everywhere except the picture.</dd>
+ <dt>Regulation mark</dt><dd>The small letter at the bottom of newer cards that tells you if it’s legal in Standard.</dd>
+</dl>
+<p class="src">Official rules: <a href="https://www.pokemon.com/us/pokemon-tcg/rules">pokemon.com Pokémon TCG rules</a>. Rules change over time, so check there for tournaments.</p>
+</article>
+
+<!-- ================= MAGIC ================= -->
+<article class="game" id="magic" style="--c:#3b5b8c" aria-labelledby="magic-h">
+<a class="back" href="#">← All games</a>
+<h2 id="magic-h">Magic: The Gathering</h2>
+<p>You are a wizard. You use lands to make mana, and spend mana to cast creatures and spells. Attack with your creatures to bring your opponent from 20 life down to 0.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#magic-play">How to play</a></li><li><a href="#magic-rules">Rules people miss</a></li><li><a href="#magic-fake">Spot a fake</a></li><li><a href="#magic-words">Words to know</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2 or more (Commander is great for groups of 4)</dd>
+ <dt>Deck</dt><dd>At least 60 cards, no more than 4 of the same card (basic lands are unlimited). Commander uses exactly 100 cards, only 1 of each.</dd>
+ <dt>You win when</dt><dd>Your opponent reaches 0 life, has to draw from an empty deck, or gets 10 poison counters.</dd>
+ <dt>Starting life</dt><dd>20 (Commander: 40)</dd>
+</dl>
+<h3 id="magic-play">How to play</h3>
+<ol class="steps">
+ <li>Shuffle and draw 7 cards. Don’t like your hand? You may <b>mulligan</b>: shuffle and draw 7 again, then put 1 card on the bottom for each mulligan you’ve taken.</li>
+ <li>The first player skips their draw on turn one.</li>
+ <li><b>Untap</b> (turn upright) all your cards, then <b>draw</b> a card.</li>
+ <li><b>Main phase</b>: play <b>one land</b> per turn. Tap lands for mana and cast creatures and other spells.</li>
+ <li><b>Combat</b>: tap creatures to attack. Your opponent chooses which of their untapped creatures block. Unblocked creatures deal damage to the player.</li>
+ <li><b>Second main phase</b>: play more cards, then end your turn. Damage on creatures wears off at the end of each turn.</li>
+</ol>
+<h3 id="magic-rules">Rules people miss</h3>
+<details><summary>Why can’t my new creature attack?</summary><p>Creatures can’t attack (or use abilities with the tap symbol) the turn they come under your control. This is called “summoning sickness”. Creatures with <b>haste</b> ignore it. They can still block right away.</p></details>
+<details><summary>What is “the stack”?</summary><p>When you cast a spell, it doesn’t happen right away. It goes on “the stack” and both players get a chance to respond. The last thing added happens first. Instants and abilities can be played in response.</p></details>
+<details><summary>When can I play instants?</summary><p>Instants and abilities can be used at almost any time, even on your opponent’s turn. Creatures, sorceries and most other cards can only be cast during your own main phase when nothing else is happening.</p></details>
+<details><summary>How does trample work?</summary><p>If a creature with trample is blocked, it only has to assign enough damage to destroy the blockers. The rest goes to the player.</p></details>
+<details><summary>What is Commander damage?</summary><p>In Commander, a player who takes 21 combat damage from the same commander over the game loses, even with life left.</p></details>
+<details><summary>Can I use any card I own?</summary><p>Depends on the format. <b>Standard</b> uses only recent sets. <b>Modern</b>, <b>Pioneer</b>, <b>Legacy</b> and <b>Commander</b> each have their own card pools and banned lists. Check the official banned list before an event.</p></details>
+<h3 id="magic-fake">Spot a fake Magic card</h3>
+<ul class="check">
+ <li><b>Light test.</b> Real cards have a dark middle layer. Shine a phone light through: fakes often let more light through. Compare with a common card you know is real.</li>
+ <li><b>Magnifier test.</b> Use your phone camera zoomed in. Real cards printed the normal way show a neat pattern of tiny dots (a “rosette”). Fakes often look blurry, smudged or like a photocopy.</li>
+ <li><b>Card back.</b> Compare the brown back with a real card: color, the blue Magic logo, and how centered the border is.</li>
+ <li><b>Mana symbols and text.</b> Look for fuzzy symbols, wrong font, misspellings, or text that doesn’t match the card on Tradéx or Scryfall.</li>
+ <li><b>Feel.</b> Too glossy, too stiff, or bends and stays bent are warning signs.</li>
+</ul>
+<ul class="red" aria-label="Warning signs"><li>Very old, expensive cards (Black Lotus, the Power Nine, dual lands) are the most faked. Buy those graded or from trusted shops.</li><li>Cards marked “Not for sale” or with a gold border are official reprints that can’t be used in tournaments. They’re not fakes, but they’re worth much less.</li></ul>
+<h3 id="magic-words">Words to know</h3>
+<dl class="words"><dt>Tap</dt><dd>Turn a card sideways to use it.</dd><dt>Mana</dt><dd>The energy you spend to cast cards, made by lands.</dd><dt>Graveyard</dt><dd>Your discard pile.</dd><dt>Exile</dt><dd>Removed from the game.</dd><dt>Foil</dt><dd>A shiny version of a card.</dd></dl>
+<p class="src">Official rules: <a href="https://magic.wizards.com/en/rules">magic.wizards.com rules</a>.</p>
+</article>
+
+<!-- ================= YU-GI-OH! ================= -->
+<article class="game" id="yugioh" style="--c:#6b4a8a" aria-labelledby="yugioh-h">
+<a class="back" href="#">← All games</a>
+<h2 id="yugioh-h">Yu-Gi-Oh! Trading Card Game</h2>
+<p>Summon monsters and use Spell and Trap cards to reduce your opponent’s Life Points (LP) from 8000 to 0.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#yugioh-play">How to play</a></li><li><a href="#yugioh-rules">Rules people miss</a></li><li><a href="#yugioh-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2</dd>
+ <dt>Deck</dt><dd>Main Deck of 40 to 60 cards, plus an Extra Deck of up to 15 (Fusion, Synchro, Xyz and Link monsters). No more than 3 of the same card, and some cards are limited or banned.</dd>
+ <dt>You win when</dt><dd>Your opponent’s LP hits 0, or they need to draw and their deck is empty.</dd>
+</dl>
+<h3 id="yugioh-play">How to play</h3>
+<ol class="steps">
+ <li>Each player starts with 8000 LP and draws 5 cards.</li>
+ <li><b>Draw Phase</b>: draw 1 card. (The player who goes first skips this on turn one.)</li>
+ <li><b>Standby Phase</b>: some card effects happen here.</li>
+ <li><b>Main Phase 1</b>: <b>Normal Summon</b> or <b>Set</b> one monster per turn. Play Spells, set Traps face down, and use effects.</li>
+ <li><b>Battle Phase</b>: your monsters in Attack Position may each attack once. (The first player can’t attack on turn one.)</li>
+ <li><b>Main Phase 2</b>, then <b>End Phase</b>.</li>
+</ol>
+<p><b>How battles work:</b> attacker’s ATK against the defender’s ATK (if it’s in Attack Position) or DEF (if in Defense Position). Lower ATK is destroyed and its owner loses the difference in LP. Monsters in Defense Position don’t make their owner lose LP when destroyed.</p>
+<h3 id="yugioh-rules">Rules people miss</h3>
+<details><summary>How do I summon big monsters?</summary><p>Level 5 or 6 monsters need 1 <b>Tribute</b> (send one of your monsters to the Graveyard). Level 7 or higher need 2. This still uses your one Normal Summon for the turn. Special Summons (from card effects or the Extra Deck) don’t count toward that limit.</p></details>
+<details><summary>Can I use a Trap the turn I set it?</summary><p>No. A Trap must stay set face down until your opponent’s turn (or any later turn) before you can use it, unless the card says otherwise. Quick-Play Spells you set have the same wait, but you can play them straight from your hand on your own turn.</p></details>
+<details><summary>What’s a chain?</summary><p>When an effect activates, both players can respond with their own effects. These stack up into a chain, and they resolve from last to first.</p></details>
+<details><summary>What does “You can only use this effect once per turn” mean?</summary><p>“Once per turn” on its own means once per copy of the card. “You can only use this effect of [card name] once per turn” means once for <b>all</b> your copies together.</p></details>
+<details><summary>What is the banned list?</summary><p>Konami keeps a Forbidden &amp; Limited list. Forbidden cards can’t be used. Limited means 1 copy, Semi-Limited means 2. It changes several times a year.</p></details>
+<h3 id="yugioh-fake">Spot a fake Yu-Gi-Oh! card</h3>
+<ul class="check">
+ <li><b>The hologram sticker.</b> Real cards have a small square hologram (the “Eye of Anubis”) in the bottom right corner. It should shimmer and show the eye when tilted. Flat, printed, or missing stickers are fakes.</li>
+ <li><b>Set code.</b> Under the picture on the right is a code like <b>LOB-EN001</b>. Look it up and check the card, rarity and picture match.</li>
+ <li><b>“1st Edition” text.</b> Should be crisp and in the same place as on a real copy of that card.</li>
+ <li><b>Card back.</b> Compare the brown swirl and the Konami logo with a real card. Fakes are often too dark or blurry.</li>
+ <li><b>Language.</b> Odd English, typos or Asian text on a card claiming to be English are signs of a fake.</li>
+</ul>
+<p class="src">Official rules: <a href="https://www.yugioh-card.com/en/rulebook/">yugioh-card.com rulebook</a>.</p>
+</article>
+
+<!-- ================= ONE PIECE ================= -->
+<article class="game" id="onepiece" style="--c:#b8862b" aria-labelledby="onepiece-h">
+<a class="back" href="#">← All games</a>
+<h2 id="onepiece-h">One Piece Card Game</h2>
+<p>You play a Leader from One Piece and their crew. Attack your opponent’s Leader to take away their Life cards. Hit them when they have no Life left and you win.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#onepiece-play">How to play</a></li><li><a href="#onepiece-rules">Rules people miss</a></li><li><a href="#onepiece-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2</dd>
+ <dt>Deck</dt><dd>1 Leader card, a 50-card deck (no more than 4 of the same card number, all matching your Leader’s colors), and 10 DON!! cards.</dd>
+ <dt>You win when</dt><dd>You land a hit on the opponent’s Leader when they have 0 Life cards, or their deck runs out.</dd>
+</dl>
+<h3 id="onepiece-play">How to play</h3>
+<ol class="steps">
+ <li>Draw 5 cards (you may redraw once). Put cards from the top of your deck face down as Life, as many as the Life number on your Leader.</li>
+ <li><b>Refresh</b>: stand up all your rested cards and return DON!! to your cost area.</li>
+ <li><b>Draw</b> a card (the first player skips this on turn one).</li>
+ <li><b>DON!!</b>: add 2 DON!! cards from your DON!! deck (the first player adds only 1 on turn one).</li>
+ <li><b>Main</b>: rest DON!! to pay for Characters, Events and Stages. Attach DON!! to your Leader or Characters for +1000 power each during your turn.</li>
+ <li><b>Attack</b>: rest your Leader or a Character to attack the opponent’s Leader or one of their <b>rested</b> Characters.</li>
+</ol>
+<h3 id="onepiece-rules">Rules people miss</h3>
+<details><summary>Can new Characters attack right away?</summary><p>No, not on the turn they are played, unless they have <b>Rush</b>. Neither player can attack on their own first turn.</p></details>
+<details><summary>How does defending work?</summary><p>The defender may use a <b>Blocker</b> to take the hit instead, then play <b>Counter</b> cards from hand to add power. If the attacker’s power is equal or higher, the attack succeeds. Ties go to the attacker.</p></details>
+<details><summary>What happens when my Leader is hit?</summary><p>You put your top Life card into your hand. If it has a <b>Trigger</b>, you may reveal it and use the effect for free.</p></details>
+<h3 id="onepiece-fake">Spot a fake One Piece card</h3>
+<ul class="check"><li>Alt-art Leaders and Manga Rares are the most faked. Check the card number and art on Tradéx.</li><li>Real foil cards have a fine, even texture. Fakes often have flat or rainbow-smeared foil.</li><li>Check the back: colors should be sharp and the logo crisp. Compare the card’s thickness with a common.</li><li>Prices far below the market price are the biggest warning sign.</li></ul>
+<p class="src">Official rules: <a href="https://en.onepiece-cardgame.com/rules/">en.onepiece-cardgame.com rules</a>.</p>
+</article>
+
+<!-- ================= LORCANA ================= -->
+<article class="game" id="lorcana" style="--c:#2d5f9a" aria-labelledby="lorcana-h">
+<a class="back" href="#">← All games</a>
+<h2 id="lorcana-h">Disney Lorcana</h2>
+<p>You play with Disney characters. Send them on quests to collect lore. The first player to reach 20 lore wins.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#lorcana-play">How to play</a></li><li><a href="#lorcana-rules">Rules people miss</a></li><li><a href="#lorcana-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2 or more</dd>
+ <dt>Deck</dt><dd>At least 60 cards, no more than 4 of the same card, and only 1 or 2 ink colors.</dd>
+ <dt>You win when</dt><dd>You reach 20 lore. You lose if you need to draw and your deck is empty.</dd>
+</dl>
+<h3 id="lorcana-play">How to play</h3>
+<ol class="steps">
+ <li>Draw 7. You may put any number of cards on the bottom and draw that many again (once).</li>
+ <li><b>Ready</b> your cards, then <b>draw</b> one (the first player skips this draw on turn one).</li>
+ <li><b>Ink</b> once per turn: put a card with the swirly gold border around its cost (the <b>inkwell</b> symbol) face down into your inkwell. Each ink card pays for 1 cost.</li>
+ <li>Play characters, items, actions and locations by exerting (turning) that many ink cards.</li>
+ <li><b>Quest</b>: exert a character to gain the lore shown on it. Or <b>challenge</b>: exert a character to fight an opponent’s exerted character.</li>
+</ol>
+<h3 id="lorcana-rules">Rules people miss</h3>
+<details><summary>Why can’t my new character quest?</summary><p>New characters are “drying” the turn you play them, so they can’t quest, challenge or exert. They can do it next turn. Characters with <b>Rush</b> can challenge right away.</p></details>
+<details><summary>Who can I challenge?</summary><p>Only characters that are exerted (turned sideways). Ready characters are safe. Both characters deal damage equal to their strength at the same time. Damage equal to willpower banishes the character.</p></details>
+<details><summary>How do songs work?</summary><p>Song cards can be played for free by exerting a character whose cost is equal to or higher than the song’s cost (the character “sings” it).</p></details>
+<h3 id="lorcana-fake">Spot a fake Lorcana card</h3>
+<ul class="check"><li>Enchanted cards (the full-art shiny versions) are heavily faked. Real ones have a textured foil you can feel and a rainbow shimmer across the whole card.</li><li>Check the set number at the bottom, like “205/204”. Look it up to see if the art matches.</li><li>Real cards have rich, deep colors on the back. Fakes are often dull or slightly blurry.</li></ul>
+<p class="src">Official site: <a href="https://www.disneylorcana.com/">disneylorcana.com</a>.</p>
+</article>
+
+<!-- ================= FLESH AND BLOOD ================= -->
+<article class="game" id="fab" style="--c:#8a2f2f" aria-labelledby="fab-h">
+<a class="back" href="#">← All games</a>
+<h2 id="fab-h">Flesh and Blood</h2>
+<p>You play a Hero with weapons and gear. Your hand is everything: you use the same cards to attack, to pay for attacks, and to block. Bring the other Hero’s life to 0.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#fab-play">How to play</a></li><li><a href="#fab-rules">Rules people miss</a></li><li><a href="#fab-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2 (some formats allow more)</dd>
+ <dt>Deck</dt><dd>A Hero card, weapons and equipment, and a deck whose size depends on the format. Usually no more than 3 copies of the same card.</dd>
+ <dt>You win when</dt><dd>The other Hero reaches 0 life. Starting life is printed on your Hero.</dd>
+</dl>
+<h3 id="fab-play">How to play</h3>
+<ol class="steps">
+ <li>Draw up to your Hero’s <b>intellect</b> (usually 4 cards).</li>
+ <li>On your turn you get <b>1 action point</b>. Spend it to play an attack or use a weapon.</li>
+ <li>To pay costs, <b>pitch</b> cards: put a card from your hand under your deck to gain resources. Red cards give 1, yellow 2, blue 3.</li>
+ <li>Your opponent <b>defends</b> by putting cards from their hand (and equipment) in front of the attack. Each card blocks its defense value.</li>
+ <li>At the end of your turn you may put 1 card face down in your <b>arsenal</b> to save it, then draw back up to your intellect.</li>
+</ol>
+<h3 id="fab-rules">Rules people miss</h3>
+<details><summary>What does “go again” do?</summary><p>It gives you back an action point after the card resolves, so you can keep attacking.</p></details>
+<details><summary>Why do the same cards come in three colors?</summary><p>Red cards hit harder but pitch for 1. Blue cards are weaker but pitch for 3. Picking which color to play is a big part of strategy.</p></details>
+<h3 id="fab-fake">Spot a fake Flesh and Blood card</h3>
+<ul class="check"><li>Cold foil and Marvel cards are the most valuable and most faked. Real cold foils have a metallic, mirror-like shine only in parts of the card.</li><li>Compare the back with a common: fakes often have a slightly different red or blurry logo.</li><li>Check the set code and card number at the bottom and look up the art.</li></ul>
+<p class="src">Official rules: <a href="https://fabtcg.com/">fabtcg.com</a>.</p>
+</article>
+
+<!-- ================= DIGIMON ================= -->
+<article class="game" id="digimon" style="--c:#2f7fb8" aria-labelledby="digimon-h">
+<a class="back" href="#">← All games</a>
+<h2 id="digimon-h">Digimon Card Game</h2>
+<p>Hatch Digi-Eggs, digivolve your Digimon into stronger forms, and attack through your opponent’s Security stack.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#digimon-play">How to play</a></li><li><a href="#digimon-rules">Rules people miss</a></li><li><a href="#digimon-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2</dd>
+ <dt>Deck</dt><dd>A 50-card main deck plus up to 5 Digi-Egg cards. No more than 4 of the same card number.</dd>
+ <dt>You win when</dt><dd>You attack the player directly when they have no Security cards left, or they need to draw and can’t.</dd>
+</dl>
+<h3 id="digimon-play">How to play</h3>
+<ol class="steps">
+ <li>Put 5 cards face down as your <b>Security</b> stack. Draw 5.</li>
+ <li><b>Unsuspend</b> your cards, then <b>draw</b> one (the first player skips this on turn one).</li>
+ <li><b>Breeding</b>: hatch a Digi-Egg, or move a Digimon from the breeding area into play.</li>
+ <li><b>Main</b>: play and digivolve cards by paying <b>memory</b>. Digivolving draws you a card.</li>
+ <li>Attack by suspending (turning) a Digimon. Each hit on the player flips one of their Security cards.</li>
+</ol>
+<h3 id="digimon-rules">Rules people miss</h3>
+<details><summary>When does my turn end?</summary><p>There is one shared memory gauge. Paying costs moves the counter toward your opponent. When it goes to 1 or more on their side, your turn ends right away, and they start with that much memory.</p></details>
+<details><summary>Can new Digimon attack?</summary><p>Not the turn they are played, unless they have <b>Rush</b>. Digivolving a Digimon that was already in play doesn’t reset this.</p></details>
+<h3 id="digimon-fake">Spot a fake Digimon card</h3>
+<ul class="check"><li>Alternate-art and special-rare cards are faked most. Check the card number and art.</li><li>Real cards have crisp black text and clean color edges. Blurry text is a red flag.</li><li>Compare foil patterns and the back with a card from a pack you opened yourself.</li></ul>
+<p class="src">Official rules: <a href="https://world.digimoncard.com/rule/">world.digimoncard.com rules</a>.</p>
+</article>
+
+<!-- ================= DRAGON BALL FUSION WORLD ================= -->
+<article class="game" id="dbfw" style="--c:#d0782b" aria-labelledby="dbfw-h">
+<a class="back" href="#">← All games</a>
+<h2 id="dbfw-h">Dragon Ball Super Card Game: Fusion World</h2>
+<p>Your Leader and Battle cards fight the other player’s Leader. Use combos from your hand to power up. Knock out all 8 of your opponent’s Life cards to win.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#dbfw-play">How to play</a></li><li><a href="#dbfw-rules">Rules people miss</a></li><li><a href="#dbfw-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2</dd>
+ <dt>Deck</dt><dd>1 Leader, plus 50 to 60 cards matching your Leader’s colors. No more than 4 of the same card.</dd>
+ <dt>You win when</dt><dd>Your opponent has 0 Life cards left, or their deck runs out.</dd>
+</dl>
+<h3 id="dbfw-play">How to play</h3>
+<ol class="steps">
+ <li>Draw 6 (you may redraw once). Put the top 8 cards of your deck face down as Life.</li>
+ <li><b>Charge</b>: draw a card, then you may put 1 card from your hand into your energy area.</li>
+ <li><b>Main</b>: rest energy to play Battle and Extra cards.</li>
+ <li><b>Attack</b>: rest your Leader or a Battle card to attack the opponent’s Leader or a rested Battle card.</li>
+ <li>Both players may add <b>combo</b> power by placing cards from hand (or resting Battle cards) into the combo area.</li>
+</ol>
+<h3 id="dbfw-rules">Rules people miss</h3>
+<details><summary>Who wins a tie?</summary><p>The attacker. If the attacker’s power is equal or higher, the hit succeeds.</p></details>
+<details><summary>Does the second player get help?</summary><p>Yes. The player going second gets a one-time energy marker. The first player can’t attack on their first turn.</p></details>
+<details><summary>What is Awaken?</summary><p>Leaders can flip to a stronger back side when you meet the condition on the card, usually when your Life drops low enough.</p></details>
+<h3 id="dbfw-fake">Spot a fake Fusion World card</h3>
+<ul class="check"><li>Special Card Rares (SCR) and alternate-art Leaders are the most faked. Check the card number and art.</li><li>Look for sharp text and correct colors. Compare the back with a card you pulled yourself.</li></ul>
+<p class="src">Official site: <a href="https://www.dbs-cardgame.com/fw/en/">dbs-cardgame.com Fusion World</a>.</p>
+</article>
+
+<!-- ================= STAR WARS UNLIMITED ================= -->
+<article class="game" id="swu" style="--c:#3d4a5c" aria-labelledby="swu-h">
+<a class="back" href="#">← All games</a>
+<h2 id="swu-h">Star Wars: Unlimited</h2>
+<p>Pick a Leader and a Base. Fight with units on the ground and in space, and destroy the other player’s Base.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#swu-play">How to play</a></li><li><a href="#swu-rules">Rules people miss</a></li><li><a href="#swu-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2 (Twin Suns lets more play)</dd>
+ <dt>Deck</dt><dd>1 Leader, 1 Base and at least 50 cards. No more than 3 of the same card.</dd>
+ <dt>You win when</dt><dd>The other player’s Base has damage equal to its HP.</dd>
+</dl>
+<h3 id="swu-play">How to play</h3>
+<ol class="steps">
+ <li>Draw 6. Put 2 cards from your hand face down as <b>resources</b>.</li>
+ <li><b>Action phase</b>: players take turns doing <b>one thing at a time</b>: play a card, attack with a unit, use an ability, or pass.</li>
+ <li>When both players pass in a row, go to the <b>regroup phase</b>: draw 2 cards, you may add 1 card as a resource, then ready everything.</li>
+</ol>
+<h3 id="swu-rules">Rules people miss</h3>
+<details><summary>Why are my new units turned sideways?</summary><p>Units come into play exhausted, so they can’t attack until the next round, unless they have <b>Ambush</b>.</p></details>
+<details><summary>Can my space ship attack ground units?</summary><p>No. Ground units fight ground units, space units fight space units. Both can attack the enemy Base.</p></details>
+<details><summary>What is Sentinel?</summary><p>If an enemy has a Sentinel unit in that arena, you must attack the Sentinel before anything else there.</p></details>
+<details><summary>What is the initiative?</summary><p>The player with initiative acts first each round. You can “take the initiative” as your action, but then you pass for the rest of the round.</p></details>
+<details><summary>Why does this card cost more?</summary><p>For every aspect icon on a card that your Leader and Base don’t have, it costs 2 more.</p></details>
+<h3 id="swu-fake">Spot a fake Star Wars: Unlimited card</h3>
+<ul class="check"><li>Hyperspace and Showcase foils are the most valuable. Real foils have a smooth, even shine.</li><li>Check the set and number on the card and compare art.</li><li>Real cards have crisp small text, even on the bottom line.</li></ul>
+<p class="src">Official rules: <a href="https://starwarsunlimited.com/how-to-play">starwarsunlimited.com how to play</a>.</p>
+</article>
+
+<!-- ================= RIFTBOUND ================= -->
+<article class="game" id="riftbound" style="--c:#4a3f8a" aria-labelledby="riftbound-h">
+<a class="back" href="#">← All games</a>
+<h2 id="riftbound-h">Riftbound: League of Legends TCG</h2>
+<p>Lead a League of Legends champion. Send units to battlefields to take control of them. Score 8 points first to win.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#riftbound-play">How to play</a></li><li><a href="#riftbound-rules">Rules people miss</a></li><li><a href="#riftbound-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2 to 4</dd>
+ <dt>Deck</dt><dd>1 Legend, a 40-card main deck (with your Champion, no more than 3 of a card), a 12-card Rune deck, and battlefields.</dd>
+ <dt>You win when</dt><dd>You score 8 points.</dd>
+</dl>
+<h3 id="riftbound-play">How to play</h3>
+<ol class="steps">
+ <li>Draw 4 (you may put back up to 2 and draw new ones).</li>
+ <li><b>Awaken</b>: ready your cards. <b>Beginning</b>: score 1 point for each battlefield you hold, channel 2 runes from your Rune deck, then draw 1.</li>
+ <li><b>Action</b>: use runes to play cards. Move ready units from your base to a battlefield.</li>
+ <li>If enemies are there, a <b>showdown</b> starts. Units deal damage equal to their Might. Win and you <b>conquer</b> the battlefield for 1 point.</li>
+</ol>
+<h3 id="riftbound-rules">Rules people miss</h3>
+<details><summary>Can my last point come from anywhere?</summary><p>No. Your winning point can’t come from conquering unless you also scored every other battlefield that turn. Holding a battlefield or a card effect works.</p></details>
+<details><summary>Do units heal?</summary><p>Yes. Units that survive a showdown heal all damage afterward.</p></details>
+<h3 id="riftbound-fake">Spot a fake Riftbound card</h3>
+<ul class="check"><li>Signature and overnumbered cards are the most valuable. Check the number and art on Tradéx.</li><li>Compare the foil and back with cards you pulled from a sealed pack.</li></ul>
+<p class="src">Official site: <a href="https://riftbound.leagueoflegends.com/">riftbound.leagueoflegends.com</a>.</p>
+</article>
+
+<!-- ================= GUNDAM ================= -->
+<article class="game" id="gundam" style="--c:#5c6f7d" aria-labelledby="gundam-h">
+<a class="back" href="#">← All games</a>
+<h2 id="gundam-h">Gundam Card Game</h2>
+<p>Deploy mobile suits (Units), put Pilots in them, and attack through your opponent’s shields.</p>
+<ul class="jump" aria-label="In this guide"><li><a href="#gundam-play">How to play</a></li><li><a href="#gundam-rules">Rules people miss</a></li><li><a href="#gundam-fake">Spot a fake</a></li></ul>
+<dl class="glance">
+ <dt>Players</dt><dd>2</dd>
+ <dt>Deck</dt><dd>Exactly 50 cards in up to 2 colors, no more than 4 of the same card number, plus a 10-card Resource deck.</dd>
+ <dt>You win when</dt><dd>You deal battle damage when the opponent has no shields left, or their deck runs out.</dd>
+</dl>
+<h3 id="gundam-play">How to play</h3>
+<ol class="steps">
+ <li>Put the top 6 cards of your deck face down as <b>shields</b>, and an EX Base token in your base area. The second player also gets an EX Resource.</li>
+ <li><b>Start</b>: stand your cards up. <b>Draw</b> 1. <b>Resource</b>: add 1 card from your Resource deck.</li>
+ <li><b>Main</b>: play cards (your resources must be at least the card’s Lv, then you rest resources equal to its cost). Pair Pilots with Units. Attack with Units.</li>
+</ol>
+<h3 id="gundam-rules">Rules people miss</h3>
+<details><summary>Can a new Unit attack?</summary><p>Not the turn it’s deployed, unless it’s a <b>Link Unit</b>: a Unit paired with the right Pilot can attack right away.</p></details>
+<details><summary>How many Units can I have?</summary><p>Up to 6 in your Battle Area, each with 1 Pilot.</p></details>
+<h3 id="gundam-fake">Spot a fake Gundam card</h3>
+<ul class="check"><li>Parallel and special-art cards are the most valuable. Check the number and art.</li><li>Compare the foil and back with cards from a sealed pack.</li></ul>
+<p class="src">Official play guide: <a href="https://www.gundam-gcg.com/en/welcome/playguide.php">gundam-gcg.com play guide</a>.</p>
+</article>
+
+<!-- ================= GENERAL ================= -->
+<section class="box" id="general" aria-labelledby="general-h">
+<h2 id="general-h">Is my card fake? Checks for any game</h2>
+<p>You don’t need special tools. A phone and a real card from the same game are enough.</p>
+<ol class="steps">
+ <li><b>Compare side by side</b> with a cheap real card from the same game: color, size, thickness, back design.</li>
+ <li><b>Look it up.</b> Search the card in Tradéx. The name, set number, picture and rarity should all match.</li>
+ <li><b>Read the text.</b> Typos, odd grammar, a wrong font or blurry symbols are the most common giveaways.</li>
+ <li><b>Light test.</b> In a dark room, shine your phone light through both cards. A fake usually glows more.</li>
+ <li><b>Zoom in.</b> Use your phone camera’s zoom. Real printing is sharp. Fakes look smudgy or pixelated.</li>
+ <li><b>Feel it.</b> Fakes are often too glossy, too stiff, or feel waxy or papery.</li>
+ <li><b>Check the price.</b> If it’s far below what Tradéx shows, be very careful.</li>
+</ol>
+<p>Still unsure? Ask at a local game store, or post clear photos of the front, back and edge in a collector community before you pay.</p>
+</section>
+
+<section class="box" id="buying" aria-labelledby="buying-h">
+<h2 id="buying-h">Buying safely</h2>
+<ul>
+ <li>Buy sealed packs and boxes from official stores or well-known shops.</li>
+ <li>On marketplaces, check the seller’s reviews and ask for photos of the actual card, front and back.</li>
+ <li>Pay with a method that offers buyer protection. Avoid “friends and family” payments to strangers.</li>
+ <li>For graded cards, check the certificate number on the grading company’s website and compare the photo.</li>
+ <li>Packs that feel loose, have messy seals, or are cheaper than everywhere else may have been opened and resealed.</li>
+</ul>
+</section>
+</main>
+
+<script>
+(()=>{
+const root=document.documentElement,main=document.getElementById('main'),find=document.getElementById('find');
+const games=[...document.querySelectorAll('article.game')],none=document.getElementById('none');
+// Text size: normal, big, huge. Remembered in this browser only.
+const SZ=['','big','huge'],tb=document.getElementById('tsize');
+let si=0;try{si=Math.max(0,SZ.indexOf(localStorage.getItem('tradex_learn_size')||''))}catch(e){}
+const setSize=i=>{si=i;SZ[i]?root.dataset.size=SZ[i]:delete root.dataset.size;tb.setAttribute('aria-pressed',i>0);tb.textContent=['A+ Bigger text','A++ Biggest','A Normal text'][i];tb.setAttribute('aria-label',i<2?'Make the text bigger':'Make the text normal size');try{localStorage.setItem('tradex_learn_size',SZ[i])}catch(e){}};
+setSize(si);tb.onclick=()=>setSize((si+1)%3);
+// One game at a time when a game is chosen, so a shared link (learn#pokemon) opens just that guide.
+function route(){const id=location.hash.slice(1),g=id&&document.getElementById(id),a=g&&g.closest('article.game');
+ if(find.value){return}
+ main.classList.toggle('solo',!!a);games.forEach(x=>x.hidden=!!a&&x!==a);
+ const art=a||null;document.title=(art?art.querySelector('h2').textContent+' – ':'')+'Learn the games – Tradéx';
+ if(a&&g===a){scrollTo(0,0);a.querySelector('h2').setAttribute('tabindex','-1');a.querySelector('h2').focus({preventScroll:true})}
+ else if(a)g.scrollIntoView()
+ speakUI()}
+addEventListener('hashchange',route);
+// Search: shows the games and questions that match.
+find.hidden=false;
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+find.addEventListener('input',()=>{const q=norm(find.value.trim());
+ if(!q){document.querySelectorAll('details').forEach(d=>{d.hidden=false;d.open=false});games.forEach(a=>a.hidden=false);document.querySelectorAll('#games li,section.box').forEach(x=>x.hidden=false);none.hidden=true;main.classList.remove('searching');route();return}
+ main.classList.remove('solo');main.classList.add('searching');let any=0;
+ games.forEach(a=>{const name=norm(a.querySelector('h2').textContent+' '+a.id),whole=name.includes(q);let hit=whole;
+  a.querySelectorAll('details').forEach(d=>{const m=whole||norm(d.textContent).includes(q);d.hidden=!m;d.open=m&&!whole;hit=hit||m});
+  if(!hit)hit=norm(a.textContent).includes(q);a.hidden=!hit;any+=hit;
+  const li=document.querySelector('#games a[href="#'+a.id+'"]');if(li)li.parentNode.hidden=!hit});
+ document.querySelectorAll('section.box').forEach(s=>{const m=norm(s.textContent).includes(q);s.hidden=!m;any+=m});
+ none.hidden=!!any});
+// Read aloud: reads the open guide (or the whole page) with the device's voice.
+const sp=document.getElementById('speak'),SS=window.speechSynthesis;
+function speakUI(){if(!SS)return;sp.hidden=false;if(SS.speaking){SS.cancel()}sp.setAttribute('aria-pressed','false');sp.textContent='🔊 Listen';sp.setAttribute('aria-label',main.classList.contains('solo')?'Read this guide aloud':'Read the page aloud')}
+if(SS)sp.onclick=()=>{if(SS.speaking){SS.cancel();sp.setAttribute('aria-pressed','false');return}
+ const a=games.find(x=>!x.hidden&&main.classList.contains('solo'))||main;
+ const parts=[...a.querySelectorAll('h1,h2,h3,p,li,dt,dd,summary')].filter(e=>!e.closest('[hidden]')&&!e.closest('.jump')&&!e.classList.contains('back')).map(e=>e.textContent.trim()).filter(Boolean);
+ sp.setAttribute('aria-pressed','true');parts.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.95;if(i===parts.length-1)u.onend=()=>sp.setAttribute('aria-pressed','false');SS.speak(u)})};
+route();
+})();
+</script>
+</body></html>
